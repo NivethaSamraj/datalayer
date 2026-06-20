@@ -1,3 +1,9 @@
+}
+>>> BTN count: 1
+>>> BTN enabled: true
+>>> ERROR ELEMENTS: 26
+>>> STATE value: 
+>>> URL: https://staging.talbots.com/billing
   1) [chrome] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:23:6 › TC002 - Verify the Datalayer Validation for Guest User E2E script 
 
     Error: DataLayer validation failed for HomePage. Please check DataLayer_Table_HomePage.html attachment.
@@ -100,26 +106,20 @@
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:83:9
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7
 
-    Test timeout of 300000ms exceeded.
+    Error: STOP - paste the >>> lines above
 
-    Error: locator.waitFor: Test ended.
-    Call log:
-      - waiting for locator('#is-CREDIT_CARD')
+       at page-objects\CheckoutPage.ts:208
 
-
-       at page-objects\CheckoutPage.ts:206
-
-      204 |     async clickCreditCard(): Promise<this> {
-      205 |         const radio = this.locators.radCreditCard(this.page);
-    > 206 |         await radio.waitFor({state: 'attached', timeout: 60000});
-          |                     ^
-      207 |         await radio.scrollIntoViewIfNeeded();
-      208 |         await radio.check({ force: true });
-      209 |
-        at CheckoutPage.clickCreditCard (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:206:21)
-        at CommonStepImpl.clickCreditCardOption (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:394:28)
-        at CommonStepImpl.enterCreditcarddetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:388:20)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:91:27
+      206 |
+      207 |     console.log('>>> URL:', this.page.url());
+    > 208 |     throw new Error('STOP - paste the >>> lines above');
+          |           ^
+      209 | }
+      210 |
+      211 |     async clickPlaceOrder(): Promise<this> {
+        at CheckoutPage.clickContinueShipping (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:208:11)
+        at CommonStepImpl.clickContinueButtonOnCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:307:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:90:9
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7
 
     attachment #2: DataLayer_Table_HomePage.html (text/html) ───────────────────────────────────────
@@ -140,8 +140,8 @@
 
     attachment #3: DataLayer_Table_HomePage.csv (text/csv) ─────────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","HomePage","ALL_PAGES","segmentID","String","","36","FAIL","segmentID expected value is not configured"
-    "2","HomePage","ALL_PAGES","tealium_random","String","","5065415641746196","FAIL","tealium_random expected value is not...
+    "1","HomePage","ALL_PAGES","segmentID","String","","32","FAIL","segmentID expected value is not configured"
+    "2","HomePage","ALL_PAGES","tealium_random","String","","7415188410638751","FAIL","tealium_random expected value is not...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #4: DataLayer_Table_ProductListingPage.html (text/html) ─────────────────────────────
@@ -162,8 +162,8 @@
 
     attachment #5: DataLayer_Table_ProductListingPage.csv (text/csv) ───────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","ProductListingPage","ALL_PAGES","mcmid","String","","57365397530104506282214751154919059056","FAIL","mcmid expected value is not configured"
-    "2","ProductListingPage","ALL_PAGES","segmentID","String","","36","FAIL","segment...
+    "1","ProductListingPage","ALL_PAGES","mcmid","String","","74938946977804690590650072218901857722","FAIL","mcmid expected value is not configured"
+    "2","ProductListingPage","ALL_PAGES","segmentID","String","","32","FAIL","segment...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #6: DataLayer_Table_PDPPage.html (text/html) ────────────────────────────────────────
@@ -184,8 +184,8 @@
 
     attachment #7: DataLayer_Table_PDPPage.csv (text/csv) ──────────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","PDPPage","ALL_PAGES","mcmid","String","","57365397530104506282214751154919059056","FAIL","mcmid expected value is not configured"
-    "2","PDPPage","ALL_PAGES","segmentID","String","","36","FAIL","segmentID expected value is n...
+    "1","PDPPage","ALL_PAGES","mcmid","String","","74938946977804690590650072218901857722","FAIL","mcmid expected value is not configured"
+    "2","PDPPage","ALL_PAGES","segmentID","String","","32","FAIL","segmentID expected value is n...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #8: DataLayer_Table_CartPage.html (text/html) ───────────────────────────────────────
@@ -228,8 +228,8 @@
 
     attachment #11: DataLayer_Table_CheckoutPage.csv (text/csv) ────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","CheckoutPage","ALL_PAGES","mcmid","String","","57365397530104506282214751154919059056","FAIL","mcmid expected value is not configured"
-    "2","CheckoutPage","ALL_PAGES","segmentID","String","","36","FAIL","segmentID expected ...
+    "1","CheckoutPage","ALL_PAGES","mcmid","String","","74938946977804690590650072218901857722","FAIL","mcmid expected value is not configured"
+    "2","CheckoutPage","ALL_PAGES","segmentID","String","","32","FAIL","segmentID expected ...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #14: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────────
@@ -258,8 +258,6 @@
 
 Waiting for the debugger to disconnect...
 
-  Slow test file: [chrome] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts (5.0m)
-  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
   1 failed
     [chrome] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:23:6 › TC002 - Verify the Datalayer Validation for Guest User E2E script 
 
