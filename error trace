@@ -1,3 +1,30 @@
+import { checkoutBasePage } from "../../base/checkoutPageLocators";
+import { BrandLocatorOverride } from "../../registry/locatorTypes";
+import { Page } from '@playwright/test';
+
+/**
+ * Brand-specific locator configuration for Checkout Page.
+ *
+ * Purpose:
+ * - Override locator values defined in base/checkoutPage.ts.
+ * - Add brand-specific locators that do not exist in the base page.
+ *
+ * Supported Usage:
+ *
+ * Override existing locator:
+ *   userName: '#usernameInput'
+ *
+ * Add new brand-specific locator:
+ *   loyaltyCard: '#loyaltyCard'
+ *
+ * IntelliSense:
+ * - Existing base locator keys will be suggested automatically.
+ * - New brand-specific locator keys can also be added when required.
+ *
+ * Notes:
+ * - Use the exact base locator key name when overriding.
+ * - Incorrect key names will not override the base locator.
+ * - Brand-specific locators should be added only when they are not common across brands.
  */
 export const talbotsCheckoutPage: BrandLocatorOverride<typeof checkoutBasePage> = {
 
@@ -9,3 +36,6 @@ export const talbotsCheckoutPage: BrandLocatorOverride<typeof checkoutBasePage> 
                 'Guest Checkout',
                 { exact: true }
             )
+
+};
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> 
