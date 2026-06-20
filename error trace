@@ -14,5 +14,5 @@ type page-objects\CheckoutPage.ts | findstr ">>>"
     console.log('>>> BTN count:', await btn.count());
     console.log('>>> BTN enabled:', await btn.isEnabled().catch(() => 'err'));
     throw new Error('STOP - paste the >>> lines above');
-
+nkbk
 
