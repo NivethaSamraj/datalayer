@@ -1,693 +1,272 @@
-CommonStepImpl.ts
-import { Page } from '@playwright/test';
-import { CommonSteps } from './CommonSteps.ts';
-import { DataEngine } from "./DataEngine.js";
-import BrowserActionImpl from '../utils/BrowserActionsImpl.ts';
-import { HomePage } from '../page-objects/HomePage.ts';
-import { SRP } from '../page-objects/SRP.ts';
-import { PLP } from '../page-objects/PLP.ts';
-import { PDP } from '../page-objects/PDP.ts';
-import { CartPage } from '../page-objects/CartPage.ts';
-import { HeaderPage } from '../page-objects/Header.ts';
-import { BrandConstants } from '../constants/BrandConstants.ts';
-import { DataLayerDataEngine } from "../test_steps/dataLayer/DataLayerDataEngine.ts";
-import { OrderConfirmationPage } from '../page-objects/OrderconfirmationPage.ts';
-import { CheckoutPage } from '../page-objects/CheckoutPage.ts';
-import { SignInPage } from '../page-objects/SignInPage.ts';
-
-const assert = require('chai').assert;
-
-/**
- * Implementation of `CommonSteps` which composes page objects and browser
- * actions to execute commonly reused test flows (like filling user details).
- */
-export class CommonStepImpl extends BrowserActionImpl implements CommonSteps {
-
-    private readonly page: Page;
-
-    constructor(page: Page, report: any) {
-        super();
-        this.page = page;
-    }
-
-    /**
-     * Searches for a product/category using the given search term.
-     *
-     * @param searchTerm - Search keyword
-     *
-     * @returns Promise<void>
-     */
-    async navigateToSearchresultsPage(searchTerm: string): Promise<void> {
-        const homePage = new HomePage(this.page);
-        await homePage.enterSearchTermAndSubmit(searchTerm);
-    }
-
-    /**
-     * Returns total search result count from SRP.
-     *
-     * @returns Search result count
-     */
-    async getSearchResultCount(): Promise<number> {
-        const srp = new SRP(this.page);
-        return await srp.getSearchResultCount();
-    }
-
-    /**
-     * Navigates to a random product from SRP.
-     *
-     * @returns Promise<void>
-     */
-    async navigateToRandomProduct(): Promise<void> {
-        const srp = new SRP(this.page);
-        await srp.navigateToRandomProduct();
-    }
-
-    /**
-     * Navigates to PLP using category name.
-     *
-     * @param categoryName - Category name
-     *
-     * @returns Promise<void>
-     */
-    async navigateToPLPByCategoryName(categoryName: string): Promise<void> {
-        const homePage = new HomePage(this.page);
-        await homePage.navigateToPLPByCategoryName(categoryName);
-    }
-
-    /**
-     * Navigates to a random product from PLP.
-     *
-     * @returns Promise<void>
-     */
-    async navigateToRandomProductFromPLP(): Promise<void> {
-        const plp = new PLP(this.page);
-        await plp.navigateToRandomProduct();
-    }
-
-    /**
-     * Adds PDP product to cart and navigates to cart page.
-     *
-     * @returns Promise<void>
-     */
-    async addToCartAndNavigateToCartPage(): Promise<void> {
-        const pdp = new PDP(this.page);
-        await pdp.selectRandomAvailableSize();
-        await pdp.addToCart();
-        await pdp.goToCart();
-    }
-
-    /**
-     * Proceeds to checkout as guest from cart page.
-     *
-     * @returns Promise<void>
-     */
-    async proceedToCheckout(): Promise<void> {
-        const cartPage = new CartPage(this.page);
-        await cartPage.proceedToCheckout();
-    }
-
-    /**
-     * Returns PDP breadcrumb text.
-     *
-     * @returns PDP breadcrumb text
-     */
-    async getPDPBreadcrumbText(): Promise<string> {
-        const pdp = new PDP(this.page);
-        return await pdp.getPDPBreadcrumbText();
-    }
-
-    /**
-     * Returns product name from PDP.
-     *
-     * @returns Product name
-     */
-    async getProductNameFromPDP(): Promise<string> {
-        const pdp = new PDP(this.page);
-        return await pdp.getProductName();
-    }
-
-    /**
-  * Checks whether Registered user account is displayed.
-  *
-  * @returns Promise<boolean>
-  */
- /**
-  * Checks whether Registered user account is displayed.
-  *
-  * @returns Promise<boolean>
-  */
-    async isRegisteredUser(): Promise<boolean> {
-        const header = new HeaderPage(this.page);
-        return await header.isRegisteredUser();
-    }
- 
-    /**
-     * Gets the names of the products in the cart.
-     *
-     * @returns Promise<string[]>
-     */
-    async getCartProductNames(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        const productName = await cartPage.getCartProductNames();
-        console.log("productName  :" + productName);
-        return productName;
-    }
- 
-    /**
-     * Gets the Final Price of the products in the cart.
-     *
-     * @returns Promise<string[]>
-     */
-    async getCartProductsFinalPrice(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        const prices = await cartPage.getCartProductsFinalPrice();
- 
-        return prices.map(price => {
-            const match = price.match(/[\d,.]+/);
-            return match ? match[0].replace(/,/g, '') : '';
-        });
-    }
- 
-    /**
-   * Gets the quantities of all products in the cart.
-   *
-   * @returns Promise<number[]>
-   */
-    async getCartProductQuantities(): Promise<number[]> {
-        const cartPage = new CartPage(this.page);
-        return await cartPage.getCartProductQuantities();
-    }
- 
-    /**
-  * Gets the Product IDs of all products in the cart.
-  *
-  * @returns Promise<string[]>
-  */
-    async getCartProductIds(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        return await cartPage.getCartProductIds();
-    }
- 
-    /**
-   * Gets the Original Price of the products in the cart.
-   *  * @returns Promise<string[]>
-   */
-    async getCartProductsOriginalPrice(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        const prices = await cartPage.getCartProductsOriginalPrice();
-        return prices.map(price =>
-            price.replace(/[^0-9.]/g, '').trim());
-    }
- 
-    /**
-   * Gets the SKUs of all products in the cart.
-   * @returns Promise<string[]>
-   */
-    async getCartProductsSKU(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        const skus = await cartPage.getCartProductsSKU();
- 
-        return skus.map(sku => {
-            const match = sku.match(/\d+/);
-            return match ? match[0] : '';
-        });
-    }
-    /**
-    * Gets the coupon discount amount for each product in the cart.
-    *
-    * Discount = Original Price - Final Price
-    *
-    * @returns Promise<string[]>
-    */
-    async getCartProductsCouponDiscount(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
- 
-        const originalPrices = await cartPage.getCartProductsOriginalPrice();
-        const finalPrices = await cartPage.getCartProductsFinalPrice();
- 
-        const toNumber = (value?: string): number => {
-            const match = value?.match(/[\d,.]+/);
-            return match ? parseFloat(match[0].replace(/,/g, '')) : 0;
-        };
- 
-        return finalPrices.map((finalPrice, index) => {
-            const original = toNumber(originalPrices[index]);
-            const final = toNumber(finalPrice);
- 
-            return (original - final).toFixed(2);
-        });
-    }
- 
-    /**
-     * Gets the total number of items in the cart.
-     *
-     * @returns Promise<number>
-     */
-    async getCartTotalItems(): Promise<number> {
-        const cartPage = new CartPage(this.page);
-        return await cartPage.getCartTotalItems();
-    }
- 
-    /**
- * Gets the cart total value.
- *
- * @returns Promise<string>
- */
-    async getCartTotalValue(): Promise<string> {
-        const cartPage = new CartPage(this.page);
-        return await cartPage.getCartTotalValue();
-    }
- 
-    /**
- * Gets the BOPIS flag for each product in the cart.
- * Returns an array of strings where 'true' indicates the product is marked for BOPIS and 'false' indicates it is not.
- */
-    async getCartProductsBopisFlag(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        return await cartPage.getCartProductsBopisFlag();
-    }
-    /**
-     * Gets the Ship to Store flag for each product in the cart.
-     * Returns an array of strings where 'true' indicates the product is marked for Ship to Store and 'false' indicates it is not.
-     */
-    async getCartProductsShipToStoreFlag(): Promise<string[]> {
-        return (await this.getCartProductsBopisFlag())
-            .map(flag => String(flag !== 'true'));
-    }
- 
-    /**
-        * Proceeds to checkout as guest from checkout page.
-        *
-        * @returns Promise<void>
-        */
-    async checkoutAsGuest(): Promise<void> {
-        const checkoutPage = new CheckoutPage(this.page);
-        await checkoutPage.checkoutAsGuest();
-    }
- 
-    /**
-     * Enters shipping address details on the checkout page using provided test data.
-     *  
-     * @param testData - The test data containing shipping address details.
-     */
-    async enterShippingAddress(testData: DataLayerDataEngine): Promise<void> {
-        const checkoutPage = new CheckoutPage(this.page);
- 
-        await checkoutPage.enterShippingAddressDetails(
-            testData.firstName, testData.lastName, testData.email, testData.addressLineOne, testData.zipCode,
-            testData.city, testData.state, testData.phoneNumber
-        );
- 
-    }
- 
-    /**
-     * Clicks the Continue button on the checkout page.
-     */
-    async clickContinueButtonOnCheckout(): Promise<void> {
-        const checkoutPage = new CheckoutPage(this.page);
-        await checkoutPage.clickContinueShipping();
-    }
-    /**
-     * Gets the applied coupons in the cart.
-     *
-     * @returns Promise<string[]>
-     */
- 
-    async getAppliedCouponsFromCart(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        return await cartPage.getAppliedCoupons();
-    }
- 
-    /**
-    * Gets the Order discount amounts in the cart.
-    *
-    * @returns Promise<string[]>
-    */
- 
-    async getOrderDiscountsFromCart(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        return await cartPage.getOrderDiscounts();
-    }
- 
-    /**
-     * Signs in as a registered user using the provided email and password.
-     *
-     * @param email - The email of the registered user.
-     * @param password - The password of the registered user.
-     */
-    async signInAsRegisteredUser(email: string, password: string): Promise<void> {
-        const header = new HeaderPage(this.page);
-        await header.clickSignin();
-        const signInPage = new SignInPage(this.page);
-        await signInPage.signIn(email, password);
-    }
- 
- 
-    /**
-    * Gets the Product brand in the cart.
-    *
-    * @returns Promise<string[]>
-    */
-    async getCartProductBrandFlags(): Promise<string[]> {
-        const cartPage = new CartPage(this.page);
-        return await cartPage.getCartProductBrandFlags();
-    }
- 
-    /**
-    * Enters Phone number in shipping details on the checkout page using provided test data.
-    *  
-    * @param testData - The test data containing Phone number details.
-    */
-    async enterPhoneNumber(testData: DataLayerDataEngine): Promise<void> {
-        const checkoutPage = new CheckoutPage(this.page);
-        await checkoutPage.enterPhoneNumber(
-            testData.phoneNumber
-        );
- 
-    }
-
-    async getLambdaTestLink(page: Page): Promise<string> {
-
-        if (process.env.RUN_ON_LAMBDA !== 'true') return '';
-
-        try {
-            const response = await page.evaluate(() =>
-                (globalThis as any).lt?.getTestDetails?.() ?? null
-            );
-
-            const parsed = typeof response === 'string' ? JSON.parse(response) : response;
-            return parsed?.data?.public_url || '';
-
-        } catch {
-            return '';
-        }
-    }
-
-
-    async enterCreditcarddetails(): Promise<void> {
-        const checkoutPage = new CheckoutPage(this.page);
-        await this.clickCreditCardOption();
-        await checkoutPage.enterCreditCardDetails("Rahul", "4111111111111111", "08", "2026", "283");
-    }
-
-     async clickCreditCardOption(): Promise<void> {
-        const checkoutPage = new CheckoutPage(this.page);
-        await checkoutPage.clickCreditCard();
-    }
-
-    async placeorder(): Promise<void> {
-        const checkoutPage = new CheckoutPage(this.page);
-        await checkoutPage.clickPlaceOrder();
-    }
-
-    async getOrderBrandMix(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderBrandMix();
-    }
-
-    async getCBCCTransactionFlag(): Promise<boolean> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getCBCCTransactionFlag();
-    }
-
-    async getOrderPaymentType(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderPaymentType();
-    }
-
-    async getApplePayTransactionFlag(): Promise<boolean> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getApplePayTransactionFlag();
-    }
-
-    async getBopisOrderProducts(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getBopisOrderProducts();
-    }
-
-    async getBopisOrderType(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getBopisOrderType();
-    }
-
-    async getOrderDiscount(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderDiscount();
-    }
-
-    async getOrderId(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderId();
-    }
-
-    async getOrderItemLevelDiscountPromoId(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderItemLevelDiscountPromoId();
-    }
-
-    async getOrderItemLevelDiscountAmount(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderItemLevelDiscountAmount();
-    }
-
-    async getOrderLevelDiscountAmount(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderOrderLevelDiscountAmount();
-    }
-
-    async getOrderPosDiscountAmount(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderPosDiscountAmount();
-    }
-
-    async getOrderPostalCode(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderPostalCode();
-    }
-
-    async getOrderShipping(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderShipping();
-    }
-
-    async getOrderShippingCity(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderShippingCity();
-    }
-
-    async getOrderShippingCountry(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderShippingCountry();
-    }
-
-    async getOrderShippingState(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderShippingState();
-    }
-
-    async getOrderShippingType(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderShippingType();
-    }
-
-    async getOrderShippingDiscountAmount(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderShippingDiscountAmount();
-    }
-
-    async getOrderTax(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderTax();
-    }
-
-    async getOrderTotal(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderTotal();
-    }
-
-    async getOrderSubTotal(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderSubTotal();
-    }
-
-    async getOrderTotalItems(): Promise<number> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderTotalItems();
-    }
-
-    async getOrderCurrency(): Promise<string> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderCurrency();
-    }
-
-    async getOrderPaymentMethodsAmount(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderPaymentMethodsAmount();
-    }
-
-    // =====================================
-    // PRODUCT LEVEL
-    // =====================================
-
-    async getOrderProductBrand(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductBrand();
-    }
-
-    async getOrderProductHardmark(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductHardmark();
-    }
-
-    async getOrderProductSku(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductSku();
-    }
-
-    async getOrderProductName(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductName();
-    }
-
-    async getOrderProductCategory(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductCategory();
-    }
-
-    async getOrderProductUnitPrice(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductUnitPrice();
-    }
-
-    async getOrderProductQuantity(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductQuantity();
-    }
-
-    async getOrderProductFinalPrice(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductFinalPrice();
-    }
-
-    async getOrderProductDisplayedPrice(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductDisplayedPrice();
-    }
-
-    async getOrderProductCouponDiscount(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductCouponDiscount();
-    }
-
-    async getOrderProductCouponPromo(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductCouponPromo();
-    }
-
-    async getOrderProductsHavenFlag(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductsHavenFlag();
-    }
-
-    async getTalbotsOrderProductDisplayedPrice(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getTalbotsOrderProductDisplayedPrice();
-    }
-
-    // async getTalbotsOrderProductUnitPrice(): Promise<string[]> {
-    //     const page = new OrderConfirmationPage(this.page);
-    //     return await page.getTalbotsOrderProductUnitPrice();
-    // }
-
-    async getTalbotsOrderProductQuantity(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getTalbotsOrderProductQuantity();
-    }
-
-    async getOrderProductGiftMessage(): Promise<string[]> {
-        const page = new OrderConfirmationPage(this.page);
-        return await page.getOrderProductGiftMessage();
-    }
-
-    async getOrderOrderLevelDiscountPromoId(): Promise<string[]> {
-        const orderConfirmationPage =
-            new OrderConfirmationPage(this.page);
-
-        return await orderConfirmationPage
-            .getOrderOrderLevelDiscountPromoId();
-    }
-
-    async getOrderPosDiscountId(): Promise<string[]> {
-        const orderConfirmationPage =
-            new OrderConfirmationPage(this.page);
-
-        return await orderConfirmationPage
-            .getOrderPosDiscountId();
-    }
-
-    async getOrderCouponCode(): Promise<string[]> {
-        const orderConfirmationPage =
-            new OrderConfirmationPage(this.page);
-
-        return await orderConfirmationPage
-            .getOrderCouponCode();
-    }
-
-    async getOrderGiftFlag(): Promise<boolean> {
-        const orderConfirmationPage =
-            new OrderConfirmationPage(this.page);
-
-        return await orderConfirmationPage
-            .getOrderGiftFlag();
-    }
-
-    async getOrderAutoApplyOrderPromoCode(): Promise<string[]> {
-        const orderConfirmationPage =
-            new OrderConfirmationPage(this.page);
-
-        return await orderConfirmationPage
-            .getOrderAutoApplyOrderPromoCode();
-    }
-
-    async getOrderAutoApplyItemPromoCode(): Promise<string[]> {
-        const orderConfirmationPage =
-            new OrderConfirmationPage(this.page);
-
-        return await orderConfirmationPage
-            .getOrderAutoApplyItemPromoCode();
-    }
-
-    async getOrderShippingDiscountPromoId(): Promise<string[]> {
-        const orderConfirmationPage =
-            new OrderConfirmationPage(this.page);
-
-        return await orderConfirmationPage
-            .getOrderShippingDiscountPromoId();
-    }
-
-    async getOrderAutoApplyShippingPromoCode(): Promise<string[]> {
-        const orderConfirmationPage =
-            new OrderConfirmationPage(this.page);
-
-        return await orderConfirmationPage
-            .getOrderAutoApplyShippingPromoCode();
-    }
-
-
-    async enterSecurityCodeForRegisteredUser(): Promise<void> {
-
-         const checkoutPage = new CheckoutPage(this.page);
-         checkoutPage.enterSecurityCodeForRegisteredUser("041");
-    }
-
-     /**
-     * Clicks the Continue button on the checkout page.
-     */
-    async clickContinueButtonOnBillingCheckout(): Promise<void> {
-        const checkoutPage = new CheckoutPage(this.page);
-        await checkoutPage.clickContinueBilling();
-    }
-
-
-}
+  1) [chrome] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:23:6 › TC002 - Verify the Datalayer Validation for Guest User E2E script 
+
+    Error: DataLayer validation failed for HomePage. Please check DataLayer_Table_HomePage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+       at test_steps\dataLayer\DataLayerStepImpl.ts:167
+
+      165 |                     false,
+      166 |                     `DataLayer validation failed for ${pageName}. Please check DataLayer_Table_${pageName}.html attachment.`
+    > 167 |                 ).toBeTruthy();
+          |                   ^
+      168 |             }
+      169 |
+      170 |         });
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:43:9
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:42:7
+
+    Error: DataLayer validation failed for ProductListingPage. Please check DataLayer_Table_ProductListingPage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+       at test_steps\dataLayer\DataLayerStepImpl.ts:167
+
+      165 |                     false,
+      166 |                     `DataLayer validation failed for ${pageName}. Please check DataLayer_Table_${pageName}.html attachment.`
+    > 167 |                 ).toBeTruthy();
+          |                   ^
+      168 |             }
+      169 |
+      170 |         });
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:53:9
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:50:7
+
+    Error: DataLayer validation failed for PDPPage. Please check DataLayer_Table_PDPPage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+       at test_steps\dataLayer\DataLayerStepImpl.ts:167
+
+      165 |                     false,
+      166 |                     `DataLayer validation failed for ${pageName}. Please check DataLayer_Table_${pageName}.html attachment.`
+    > 167 |                 ).toBeTruthy();
+          |                   ^
+      168 |             }
+      169 |
+      170 |         });
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:63:9
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:60:7
+
+    Error: DataLayer validation failed for CartPage. Please check DataLayer_Table_CartPage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+       at test_steps\dataLayer\DataLayerStepImpl.ts:167
+
+      165 |                     false,
+      166 |                     `DataLayer validation failed for ${pageName}. Please check DataLayer_Table_${pageName}.html attachment.`
+    > 167 |                 ).toBeTruthy();
+          |                   ^
+      168 |             }
+      169 |
+      170 |         });
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:74:9
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:69:7
+
+    Error: DataLayer validation failed for CheckoutPage. Please check DataLayer_Table_CheckoutPage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+       at test_steps\dataLayer\DataLayerStepImpl.ts:167
+
+      165 |                     false,
+      166 |                     `DataLayer validation failed for ${pageName}. Please check DataLayer_Table_${pageName}.html attachment.`
+    > 167 |                 ).toBeTruthy();
+          |                   ^
+      168 |             }
+      169 |
+      170 |         });
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:83:9
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7
+
+    Error: locator.click: Error: strict mode violation: getByRole('radio', { name: /credit card/i }) resolved to 2 elements:
+        1) <input type="radio" id="is-COMENITY" value="COMENITY" class="input-radio " name="dwfrm_billing_paymentMethods_selectedPaymentMethodID"/> aka getByRole('radio', { name: 'Talbots credit card' })
+        2) <input type="radio" id="is-CREDIT_CARD" value="CREDIT_CARD" class="input-radio " name="dwfrm_billing_paymentMethods_selectedPaymentMethodID"/> aka getByRole('radio', { name: 'Credit Card', exact: true })
+
+    Call log:
+      - waiting for getByRole('radio', { name: /credit card/i })
+
+
+       at page-objects\CheckoutPage.ts:197
+
+      195 |
+      196 |     async clickCreditCard(): Promise<this> {
+    > 197 |         await this.locators.radCreditCard(this.page).click({ force: true });
+          |                                                      ^
+      198 |
+      199 |         return this;
+      200 |     }
+        at CheckoutPage.clickCreditCard (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:197:54)
+        at CommonStepImpl.clickCreditCardOption (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:394:28)
+        at CommonStepImpl.enterCreditcarddetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:388:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:91:27
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7
+
+    attachment #2: DataLayer_Table_HomePage.html (text/html) ───────────────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: DataLayer_Table_HomePage.csv (text/csv) ─────────────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","HomePage","ALL_PAGES","segmentID","String","","20","FAIL","segmentID expected value is not configured"
+    "2","HomePage","ALL_PAGES","tealium_random","String","","5421495710164504","FAIL","tealium_random expected value is not...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: DataLayer_Table_ProductListingPage.html (text/html) ─────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: DataLayer_Table_ProductListingPage.csv (text/csv) ───────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","ProductListingPage","ALL_PAGES","mcmid","String","","09716656437486140170398307090040483208","FAIL","mcmid expected value is not configured"
+    "2","ProductListingPage","ALL_PAGES","segmentID","String","","20","FAIL","segment...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: DataLayer_Table_PDPPage.html (text/html) ────────────────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: DataLayer_Table_PDPPage.csv (text/csv) ──────────────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","PDPPage","ALL_PAGES","mcmid","String","","09716656437486140170398307090040483208","FAIL","mcmid expected value is not configured"
+    "2","PDPPage","ALL_PAGES","segmentID","String","","20","FAIL","segmentID expected value is n...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: DataLayer_Table_CartPage.html (text/html) ───────────────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: DataLayer_Table_CartPage.csv (text/csv) ─────────────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555""]","FAIL","cart_autoapply_item_promo_code expected value is not configured"
+    "2","CartPage","CART_PAGE","cart_autoapply_order_promo_code","Array","...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: DataLayer_Table_CheckoutPage.html (text/html) ──────────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: DataLayer_Table_CheckoutPage.csv (text/csv) ────────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","CheckoutPage","ALL_PAGES","mcmid","String","","09716656437486140170398307090040483208","FAIL","mcmid expected value is not configured"
+    "2","CheckoutPage","ALL_PAGES","segmentID","String","","20","FAIL","segmentID expected ...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: DataLayer_Consolidated_Report.csv (text/csv) ───────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555""]","FAIL","cart_autoapply_item_promo_code expected value is not configured"
+    "2","CartPage","CART_PAGE","cart_autoapply_order_promo_code","Array","...
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\tests-test_scripts-DataLay-d54ba-n-for-Guest-User-E2E-script-chrome\error-context.md
+
+Waiting for the debugger to disconnect...
+
+  1 failed
+    [chrome] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:23:6 › TC002 - Verify the Datalayer Validation for Guest User E2E script 
+
+To open last HTML report run:
+
+  npx playwright show-report
+
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
+Waiting for the debugger to disconnect...
 PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> 
