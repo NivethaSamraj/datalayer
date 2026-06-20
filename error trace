@@ -1,101 +1,52 @@
- async clickContinueButtonOnCheckout(): Promise<void> {
-        await checkoutPage.clickContinueShipping();
-/**
- * Playwright test configuration used by the test runner.
- *
- * This file loads environment variables and exports a `PlaywrightTestConfig`
- * consumed by Playwright. Adjust timeouts, reporters and projects here.
- */
-import * as dotenv from 'dotenv';
-
-dotenv.config();
-
-
-import { PlaywrightTestConfig, TraceMode } from '@playwright/test';
-const { devices } = require('@playwright/test');
-
-//Report Portal configurations
-export const RPconfig = {
-  apiKey: '4debfd27-9504-461f-86e4-b1cb91e65dd0',
-  endpoint: 'http://hypertestxcenterreportportal:4444/api/v1',
-  project: 'GUIDEWIRE',
-  launch: "Sample_Run",
-  enabled: false,
-  attributes: [
-    {
-      key: 'key',
-      value: 'value',
-    },
-    {
-      value: 'value',
-    },
-  ],
-  description: "Playwright_Js_Run",
-};
-
-const reporters: any[] = [
-  ['html', { open: 'never' }],
-  ['allure-playwright', {
-    detail: false,
-    clean: true,
-    logLevel: 'DEBUG',
-    attachments: { enabled: false },
-  }],
-];
+                                                                                          ^C
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> type .env
+BASE_URL=https://storefront:brand@staging.talbots.com
+applicationURL=https://storefront:brand@staging.talbots.com
+LT_USERNAME=DineshDamodharan
+# LT_ACCESS_KEY=yueJpzPQE7OWAzrag3Fhf43qA09QI9G7qP4x4aOYCy3IGvyTbr
+LT_ACCESS_KEY=LT_UdIxdYHLgBgl4qzpbHHrm3cYL4Uj5odMQ4fryfrk1OXOI8w
+AZURE_OPENAI_API_KEY=9RHwcaOLWs773i7s8W1VIO6IrgIbsRuWP4Uh32Dx4lYCjPnleGlBJQQJ99BEACHYHv6XJ3w3AAABACOGgGw3
+AZURE_OPENAI_ENDPOINT=https://testingsl1.openai.azure.com
+AZURE_OPENAI_DEPLOYMENT=my-gpt41
+TRACE_VIEWER=off 
+RUN_ON_LAMBDA=true
+RUN_ON_HYPER=false
+MAX_PAGE_REFRESH=120000
+BUILD_LAUNCHES_NAME=SampleTestRun
+ENABLE_REPORT_PORTAL=true
+ANDROID_APP_URL=lt://APP10160291751778645411190436
+IOS_APP_URL=lt://APP_IOS_ID
+MOBILE_PLATFORM=android
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> echo %BASE_URL%
+%BASE_URL%
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> dir .env
 
 
-// ðŸ‘‰ Add ReportPortal reporter only when enabled = true
-if (RPconfig.enabled) {
-  reporters.push(['@reportportal/agent-js-playwright', RPconfig]);
-}
-
-const config: PlaywrightTestConfig = {
-  timeout: 1 * 300 * 1000,
-  expect: {
-    timeout: 300 * 1000,
-  },
-  retries: 0,
-  fullyParallel: true,
-  forbidOnly: false,
-  workers: 10,
-  use: {
-
-    headless: false,
-    // screenshot: 'on',
-    // video: 'on',
-    actionTimeout: 60 * 1000,
-    navigationTimeout: 100 * 1000,
-    // trace: process.env.TRACE_VIEWER as TraceMode,
-  },
-
- projects: [
-  {
-    name: 'chrome',
-    use: {
-      browserName: 'chromium',
-      channel: 'chrome',
-      baseURL: process.env.BASE_URL,
-      headless: false,
-      viewport: null,
-      launchOptions: {
-        args: [
-          '--start-maximized',
-          '--disable-blink-features=AutomationControlled'
-        ]
-      }
-    }
-  }
-],
-  reporter: reporters,
+    Directory: C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion
 
 
-  //   [['html',{ open: 'never' }]
-  //   ,['@reportportal/agent-js-playwright', RPconfig]
-  //   ,["allure-playwright", { detail: false ,"clean": true,"logLevel": "DEBUG","attachments": {
-  //     "enabled": false
-  // }}]],
-  //   testDir: './tests',
-};
+Mode                 LastWriteTime         Length Name                                                    
+----                 -------------         ------ ----                                                    
+-a----        20-06-2026     15:15            730 .env                                                    
 
-export default config;
+
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> type .env
+BASE_URL=https://storefront:brand@staging.talbots.com
+applicationURL=https://storefront:brand@staging.talbots.com
+LT_USERNAME=DineshDamodharan
+# LT_ACCESS_KEY=yueJpzPQE7OWAzrag3Fhf43qA09QI9G7qP4x4aOYCy3IGvyTbr
+LT_ACCESS_KEY=LT_UdIxdYHLgBgl4qzpbHHrm3cYL4Uj5odMQ4fryfrk1OXOI8w
+AZURE_OPENAI_API_KEY=9RHwcaOLWs773i7s8W1VIO6IrgIbsRuWP4Uh32Dx4lYCjPnleGlBJQQJ99BEACHYHv6XJ3w3AAABACOGgGw3
+AZURE_OPENAI_ENDPOINT=https://testingsl1.openai.azure.com
+AZURE_OPENAI_DEPLOYMENT=my-gpt41
+TRACE_VIEWER=off 
+RUN_ON_LAMBDA=true
+RUN_ON_HYPER=false
+MAX_PAGE_REFRESH=120000
+BUILD_LAUNCHES_NAME=SampleTestRun
+ENABLE_REPORT_PORTAL=true
+ANDROID_APP_URL=lt://APP10160291751778645411190436
+IOS_APP_URL=lt://APP_IOS_ID
+MOBILE_PLATFORM=android
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> type tests\test_scripts\DataLayerE2E_FullSample.spec.ts | findstr "goto baseURL"                 
 PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> 
