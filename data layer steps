@@ -1,0 +1,31 @@
+import { ValidationGroup, PageName } from '../../utils/dataLayer/DataLayerConstants';
+import { DataLayerValidationContext } from './DataLayerStepImpl';
+
+
+/**
+ * Defines reusable DataLayer validation operations.
+ */
+export interface DataLayerSteps {
+
+    /**
+     * Validates DataLayer variables for the given application checkpoint/page.
+     *
+     * Flow:
+     * - Fetch repository variables
+     * - Extract utag.data
+     * - Build expected values
+     * - Validate actual vs expected values
+     * - Generate HTML and CSV reports
+     *
+     * @param pageName - Current application page/checkpoint
+     * @param validationGroups - Applicable validation groups
+     * @param context - Runtime validation context
+     *
+     * @returns Promise<void>
+     */
+    validateCheckpoint(
+        pageName: PageName,
+        validationGroups: ValidationGroup[],
+        context?: DataLayerValidationContext
+    ): Promise<void>;
+}
