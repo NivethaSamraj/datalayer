@@ -1,0 +1,29 @@
+async clickContinueShipping(): Promise<this> {
+    const btn = this.page.locator("#form-submit");
+    console.log('>>> BTN count:', await btn.count());
+    console.log('>>> BTN enabled:', await btn.isEnabled().catch(() => 'err'));
+
+    await btn.scrollIntoViewIfNeeded().catch(() => {});
+    await btn.click({ force: true }).catch(e => console.log('>>> CLICK ERR:', e.message));
+
+    await this.page.waitForTimeout(6000);
+
+    // dump EVERY visible error/caption on the page
+    const errs = this.page.locator('span.error, div.error, .form-caption, [aria-invalid="true"], .error-message');
+    const c = await errs.count();
+    console.log('>>> ERROR ELEMENTS:', c);
+    for (let i = 0; i < c; i++) {
+        const el = errs.nth(i);
+        if (await el.isVisible().catch(() => false)) {
+            const t = (await el.textContent().catch(() => ''))?.trim();
+            if (t) console.log('>>> ERR:', JSON.stringify(t));
+        }
+    }
+
+    // is the state actually selected?
+    const state = this.page.getByRole('combobox', { name: 'State*' });
+    console.log('>>> STATE value:', await state.inputValue().catch(() => 'err'));
+
+    console.log('>>> URL:', this.page.url());
+    throw new Error('STOP - paste the >>> lines above');
+}
