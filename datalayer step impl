@@ -1,0 +1,189 @@
+import { Page, TestInfo, test, expect } from '@playwright/test';
+import DataLayerHelper from '../../utils/dataLayer/DatalayerHelper';
+import { DataLayerValidator } from '../../utils/dataLayer/DataLayerValidator';
+import { DataLayerRepositoryReader, DataLayerVariable } from '../../utils/dataLayer/DataLayerRepositoryReader';
+import { DataLayerHtmlReporter, DataLayerReportRow } from '../../utils/dataLayer/reporters/DataLayerHtmlReporter';
+import { DataLayerCSVReporter } from '../../utils/dataLayer/reporters/DataLayerCSVReporter';
+import { CommonStepImpl } from '../CommonStepImpl';
+import { DataLayerExpectedValueBuilder } from '../../utils/dataLayer/DataLayerExpectedValueBuilder';
+import { ValidationGroup, PageName } from '../../utils/dataLayer/DataLayerConstants';
+
+/**
+ * Runtime context used for dynamic
+ * DataLayer expected value generation.
+ */
+export interface DataLayerValidationContext {
+
+    categoryName?: string;
+    searchKeyword?: string;
+}
+
+/**
+ * Handles DataLayer validation execution,
+ * reporting, and result attachment.
+ */
+export class DataLayerStepImpl {
+
+    private consolidatedRows: DataLayerReportRow[] = [];
+
+    /**
+     * Initializes DataLayerStepImpl.
+     * @param page - Playwright page instance
+     * @param testInfo - Playwright test information
+     * @param commonSteps - Common reusable step methods
+     */
+    constructor(
+        private readonly page: Page,
+        private readonly testInfo: TestInfo,
+        private readonly commonSteps: CommonStepImpl
+    ) { }
+
+    /**
+     * Validates DataLayer variables for the given checkpoint/page.
+     *
+     * Flow:
+     * - Fetch repository variables
+     * - Extract utag.data
+     * - Build expected values
+     * - Validate actual vs expected
+     * - Generate HTML/CSV reports
+     *
+     * @param pageName - Current application page
+     * @param validationGroups - Applicable validation groups
+     * @param context - Runtime validation context
+     *
+     * @returns Promise<void>
+     */
+    async validateCheckpoint(
+        pageName: PageName,
+        validationGroups: ValidationGroup[],
+        context?: DataLayerValidationContext
+    ): Promise<void> {
+
+        await test.step(`Validate DataLayer page: ${pageName}`, async () => {
+
+            const variables: DataLayerVariable[] =
+                validationGroups.flatMap(group =>
+                    DataLayerRepositoryReader.getVariables(group)
+                );
+
+            const dataLayer: Record<string, any> =
+                await DataLayerHelper.getData(this.page);
+
+            console.log(`Extracted DataLayer: ${pageName}`, dataLayer);
+
+            const expectedValues =
+                await DataLayerExpectedValueBuilder.build(
+                    this.page,
+                    pageName,
+                    this.commonSteps,
+                    validationGroups,
+                    context
+                );
+
+            const reportRows: DataLayerReportRow[] = [];
+
+            for (const variable of variables) {
+
+                const actualValue = dataLayer[variable.Variable];
+
+                const expectedConfig =
+                    expectedValues[variable.Variable] ??
+                    variable.ExpectedValue;
+
+                const expectedValue =
+                    typeof expectedConfig === 'object' &&
+                        expectedConfig !== null &&
+                        'value' in expectedConfig
+                        ? expectedConfig.value
+                        : expectedConfig;
+
+                const compareType =
+                    typeof expectedConfig === 'object' &&
+                        expectedConfig !== null &&
+                        'compareType' in expectedConfig
+                        ? expectedConfig.compareType
+                        : variable.CompareType || 'EXACT';
+
+                const result =
+                    DataLayerValidator.validate(
+                        variable,
+                        actualValue,
+                        expectedValue,
+                        pageName,
+                        compareType
+                    );
+
+                reportRows.push({
+                    No: 0,
+                    Checkpoint: pageName,
+                    Group: variable.Location,
+                    Variable: variable.Variable,
+                    VariableType: variable.Type,
+                    Expected: expectedValue ?? '',
+                    Actual: actualValue ?? '',
+                    Status: result.status,
+                    Message: result.message
+                });
+            }
+
+            const totalCount = reportRows.length;
+
+            const passCount =
+                reportRows.filter(row => row.Status === 'PASS').length;
+
+            const failCount =
+                reportRows.filter(row => row.Status === 'FAIL').length;
+
+            const missingCount =
+                reportRows.filter(row => row.Status === 'MISSING').length;
+
+            this.consolidatedRows.push(...reportRows);
+
+            await test.step(
+                `DataLayer Summary - ${pageName} | Total: ${totalCount} | Passed: ${passCount} | Failed: ${failCount} | Missing: ${missingCount}`,
+                async () => { }
+            );
+
+            await this.testInfo.attach(`DataLayer_Table_${pageName}.html`, {
+                body: DataLayerHtmlReporter.generate(reportRows),
+                contentType: 'text/html'
+            });
+
+            await this.testInfo.attach(`DataLayer_Table_${pageName}.csv`, {
+                body: DataLayerCSVReporter.generate(reportRows),
+                contentType: 'text/csv'
+            });
+
+            const hasFailure =
+                reportRows.some(row =>
+                    row.Status === 'FAIL' || row.Status === 'MISSING'
+                );
+
+            if (hasFailure) {
+                expect.soft(
+                    false,
+                    `DataLayer validation failed for ${pageName}. Please check DataLayer_Table_${pageName}.html attachment.`
+                ).toBeTruthy();
+            }
+
+        });
+
+    }
+
+    async attachConsolidatedReport(): Promise<void> {
+
+        await this.testInfo.attach('DataLayer_Consolidated_Report.html', {
+            body: DataLayerHtmlReporter.generate(this.consolidatedRows),
+            contentType: 'text/html'
+        });
+
+        await this.testInfo.attach('DataLayer_Consolidated_Report.csv', {
+            body: DataLayerCSVReporter.generate(this.consolidatedRows),
+            contentType: 'text/csv'
+        });
+    }
+
+
+
+}
