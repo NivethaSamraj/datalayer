@@ -1,3 +1,17 @@
+
+  1) [chrome] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:23:6 › TC002 - Verify the Datalayer Validation for Guest User E2E script 
+
+    Error: DataLayer validation failed for HomePage. Please check DataLayer_Table_HomePage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+
+       at test_steps\dataLayer\DataLayerStepImpl.ts:167
+
+      165 |                     false,
+      166 |                     `DataLayer validation failed for ${pageName}. Please check DataLayer_Table_${pageName}.html attachment.`
+    > 167 |                 ).toBeTruthy();
           |                   ^
       168 |             }
       169 |
@@ -87,21 +101,21 @@
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:83:9
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7
 
-    TimeoutError: locator.click: Timeout 60000ms exceeded.
+    TimeoutError: locator.waitFor: Timeout 3000ms exceeded.
     Call log:
-      - waiting for getByRole('radio', { name: 'Credit Card', exact: true })
+      - waiting for getByRole('radio', { name: /credit card/i })
 
 
-       at page-objects\CheckoutPage.ts:204
+       at page-objects\CheckoutPage.ts:205
 
-      202 |
       203 |     async clickCreditCard(): Promise<this> {
-    > 204 |         await this.locators.radCreditCard(this.page).click({ force: true });
-          |                                                      ^
-      205 |
-      206 |         return this;
-      207 |     }
-        at CheckoutPage.clickCreditCard (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:204:54)
+      204 |         const radio = this.locators.radCreditCard(this.page);
+    > 205 |         await radio.waitFor({ state: 'attached' , timeout: 3000});
+          |                     ^
+      206 |         await radio.scrollIntoViewIfNeeded();
+      207 |         await radio.check({ force: true });
+      208 |
+        at CheckoutPage.clickCreditCard (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:205:21)
         at CommonStepImpl.clickCreditCardOption (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:394:28)
         at CommonStepImpl.enterCreditcarddetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:388:20)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:91:27
@@ -125,8 +139,8 @@
 
     attachment #3: DataLayer_Table_HomePage.csv (text/csv) ─────────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","HomePage","ALL_PAGES","segmentID","String","","73","FAIL","segmentID expected value is not configured"
-    "2","HomePage","ALL_PAGES","tealium_random","String","","6021833136474836","FAIL","tealium_random expected value is not...
+    "1","HomePage","ALL_PAGES","segmentID","String","","79","FAIL","segmentID expected value is not configured"
+    "2","HomePage","ALL_PAGES","tealium_random","String","","4384812905074036","FAIL","tealium_random expected value is not...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #4: DataLayer_Table_ProductListingPage.html (text/html) ─────────────────────────────
@@ -147,8 +161,8 @@
 
     attachment #5: DataLayer_Table_ProductListingPage.csv (text/csv) ───────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","ProductListingPage","ALL_PAGES","mcmid","String","","68705400934187900811683097870926225378","FAIL","mcmid expected value is not configured"
-    "2","ProductListingPage","ALL_PAGES","segmentID","String","","73","FAIL","segment...
+    "1","ProductListingPage","ALL_PAGES","mcmid","String","","27919022252582716290663167149011627955","FAIL","mcmid expected value is not configured"
+    "2","ProductListingPage","ALL_PAGES","segmentID","String","","79","FAIL","segment...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #6: DataLayer_Table_PDPPage.html (text/html) ────────────────────────────────────────
@@ -169,8 +183,8 @@
 
     attachment #7: DataLayer_Table_PDPPage.csv (text/csv) ──────────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","PDPPage","ALL_PAGES","mcmid","String","","68705400934187900811683097870926225378","FAIL","mcmid expected value is not configured"
-    "2","PDPPage","ALL_PAGES","segmentID","String","","73","FAIL","segmentID expected value is n...
+    "1","PDPPage","ALL_PAGES","mcmid","String","","27919022252582716290663167149011627955","FAIL","mcmid expected value is not configured"
+    "2","PDPPage","ALL_PAGES","segmentID","String","","79","FAIL","segmentID expected value is n...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #8: DataLayer_Table_CartPage.html (text/html) ───────────────────────────────────────
@@ -213,8 +227,8 @@
 
     attachment #11: DataLayer_Table_CheckoutPage.csv (text/csv) ────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","CheckoutPage","ALL_PAGES","mcmid","String","","68705400934187900811683097870926225378","FAIL","mcmid expected value is not configured"
-    "2","CheckoutPage","ALL_PAGES","segmentID","String","","73","FAIL","segmentID expected ...
+    "1","CheckoutPage","ALL_PAGES","mcmid","String","","27919022252582716290663167149011627955","FAIL","mcmid expected value is not configured"
+    "2","CheckoutPage","ALL_PAGES","segmentID","String","","79","FAIL","segmentID expected ...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #14: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────────
@@ -243,3 +257,9 @@
 
   1 failed
     [chrome] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:23:6 › TC002 - Verify the Datalayer Validation for Guest User E2E script 
+
+To open last HTML report run:
+
+  npx playwright show-report
+
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion> 
