@@ -1,14 +1,4 @@
-FRAME:  | about:blank
-FRAME:  | 
-=== RADIOS (main) ===
-radio count: 3
-0 label= null value= "us_standard" visible= true
-1 label= null value= "us_premium" visible= true
-2 label= null value= "us_express" visible= true
-=== PAYMENT LABELS ===
-  1) [chrome] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:23:6 › TC002 - Verify the Datalayer Validation for Guest User E2E script 
-
-    Error: DataLayer validation failed for HomePage. Please check DataLayer_Table_HomePage.html attachment.
+  Error: DataLayer validation failed for HomePage. Please check DataLayer_Table_HomePage.html attachment.
 
     expect(received).toBeTruthy()
 
@@ -108,21 +98,24 @@ radio count: 3
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:83:9
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7
 
-    Error: DIAGNOSTIC STOP - read the console output above
+    TimeoutError: locator.click: Timeout 60000ms exceeded.
+    Call log:
+      - waiting for getByRole('radio', { name: /credit card/i })
 
-       at page-objects\CheckoutPage.ts:229
 
-      227 |     }
-      228 |
-    > 229 |     throw new Error('DIAGNOSTIC STOP - read the console output above');
-          |           ^
-      230 | }
-      231 |
-      232 |     async enterSecurityCodeForRegisteredUser(securityCode: string): Promise<this> {
-        at CheckoutPage.clickCreditCard (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:229:11)
-        at CommonStepImpl.clickCreditCardOption (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:394:9)
-        at CommonStepImpl.enterCreditcarddetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:388:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:91:9
+       at page-objects\CheckoutPage.ts:197
+
+      195 |
+      196 |     async clickCreditCard(): Promise<this> {
+    > 197 |         await this.locators.radCreditCard(this.page).click({ force: true });
+          |                                                      ^
+      198 |
+      199 |         return this;
+      200 |     }
+        at CheckoutPage.clickCreditCard (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:197:54)
+        at CommonStepImpl.clickCreditCardOption (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:394:28)
+        at CommonStepImpl.enterCreditcarddetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:388:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:91:27
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 1\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7
 
     attachment #2: DataLayer_Table_HomePage.html (text/html) ───────────────────────────────────────
@@ -143,8 +136,8 @@ radio count: 3
 
     attachment #3: DataLayer_Table_HomePage.csv (text/csv) ─────────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","HomePage","ALL_PAGES","segmentID","String","","58","FAIL","segmentID expected value is not configured"
-    "2","HomePage","ALL_PAGES","tealium_random","String","","1949709836053516","FAIL","tealium_random expected value is not...
+    "1","HomePage","ALL_PAGES","segmentID","String","","97","FAIL","segmentID expected value is not configured"
+    "2","HomePage","ALL_PAGES","tealium_random","String","","2495919902938190","FAIL","tealium_random expected value is not...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #4: DataLayer_Table_ProductListingPage.html (text/html) ─────────────────────────────
@@ -165,8 +158,8 @@ radio count: 3
 
     attachment #5: DataLayer_Table_ProductListingPage.csv (text/csv) ───────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","ProductListingPage","ALL_PAGES","mcmid","String","","57890483503505977462343431532757358880","FAIL","mcmid expected value is not configured"
-    "2","ProductListingPage","ALL_PAGES","segmentID","String","","58","FAIL","segment...
+    "1","ProductListingPage","ALL_PAGES","mcmid","String","","27293083635763341302480494683607527532","FAIL","mcmid expected value is not configured"
+    "2","ProductListingPage","ALL_PAGES","segmentID","String","","97","FAIL","segment...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #6: DataLayer_Table_PDPPage.html (text/html) ────────────────────────────────────────
@@ -187,8 +180,8 @@ radio count: 3
 
     attachment #7: DataLayer_Table_PDPPage.csv (text/csv) ──────────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","PDPPage","ALL_PAGES","mcmid","String","","57890483503505977462343431532757358880","FAIL","mcmid expected value is not configured"
-    "2","PDPPage","ALL_PAGES","segmentID","String","","58","FAIL","segmentID expected value is n...
+    "1","PDPPage","ALL_PAGES","mcmid","String","","27293083635763341302480494683607527532","FAIL","mcmid expected value is not configured"
+    "2","PDPPage","ALL_PAGES","segmentID","String","","97","FAIL","segmentID expected value is n...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #8: DataLayer_Table_CartPage.html (text/html) ───────────────────────────────────────
@@ -231,8 +224,8 @@ radio count: 3
 
     attachment #11: DataLayer_Table_CheckoutPage.csv (text/csv) ────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","CheckoutPage","ALL_PAGES","mcmid","String","","57890483503505977462343431532757358880","FAIL","mcmid expected value is not configured"
-    "2","CheckoutPage","ALL_PAGES","segmentID","String","","58","FAIL","segmentID expected ...
+    "1","CheckoutPage","ALL_PAGES","mcmid","String","","27293083635763341302480494683607527532","FAIL","mcmid expected value is not configured"
+    "2","CheckoutPage","ALL_PAGES","segmentID","String","","97","FAIL","segmentID expected ...
     ────────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #14: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────────
