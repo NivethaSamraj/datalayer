@@ -1,1 +1,16 @@
 <button id="billingSubmitBtn" class="button-fancy-large" type="submit" name="dwfrm_billing_save" value="Continue" aria-label="Continue for billing"><span>Continue</span></button>
+
+
+
+
+const cvv = this.locators.inpCardSecurityNumber(this.page);
+    await cvv.click();
+    await cvv.pressSequentially(securityCode, { delay: 50 });
+    await cvv.blur();
+
+    // Force focus fully out of the Aurus iframe so it tokenizes the card.
+    await this.page.locator('body').click({ position: { x: 5, y: 5 } });
+    await this.page.waitForTimeout(1500); // give Aurus time to produce the token
+
+    return this;
+}
