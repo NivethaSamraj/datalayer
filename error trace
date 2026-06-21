@@ -1,45 +1,29 @@
-◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
-
 Running 1 test using 1 worker
 ◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
-◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
 …llSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User
-◇ injected env (17) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+◇ injected env (17) from .env // tip: ⌘ suppress logs { quiet: true }
   1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User › Proceed to checkout as Registered User 
 
-    Error: expect(locator).toBeVisible() failed
-
-    Locator:  locator('button.checkout-button').first()
-    Expected: visible
-    Received: hidden
-    Timeout:  15000ms
-
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
     Call log:
-      - Expect "toBeVisible" with timeout 15000ms
-      - waiting for locator('button.checkout-button').first()
-        2 × locator resolved to <button type="submit" value="Checkout" disabled="disabled" name="dwfrm_cart_checkoutCart" class="button-fancy-large checkout-button checkout-btn-toogle">↵Checkout↵</button>
-          - unexpected value "hidden"
-        6 × locator resolved to <button type="submit" value="Checkout" name="dwfrm_cart_checkoutCart" class="button-fancy-large checkout-button checkout-btn-toogle">↵Checkout↵</button>
-          - unexpected value "hidden"
-        15 × locator resolved to <button role="link" tabindex="0" type="submit" value="Checkout" name="dwfrm_cart_checkoutCart" class="button-fancy-large checkout-button checkout-btn-toogle">↵Checkout↵</button>
-           - unexpected value "hidden"
+      - waiting for getByRole('textbox', { name: 'Phone' }) to be visible
 
 
-       at utils\BrowserActionsImpl.ts:358
+       at page-objects\CheckoutPage.ts:211
 
-      356 |
-      357 |   async waitForElement(locator: Locator): Promise<void> {
-    > 358 |     await expect(locator.first()).toBeVisible({ timeout: 15000 });
-          |                                   ^
-      359 |   }
-      360 |
-      361 |   async scrollIntoView(locator: Locator): Promise<void> {
-        at CartPage.waitForElement (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\utils\BrowserActionsImpl.ts:358:35)
-        at CartPage.proceedToCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CartPage.ts:46:16)
-        at CommonStepImpl.proceedToCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:105:24)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:399:27)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:36)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:25)
+      209 |         const phoneNumberField =
+      210 |             this.locators.inpPhoneNumber(this.page);
+    > 211 |         await phoneNumberField.waitFor({ state: 'visible', timeout: 30000 });
+          |                                ^
+      212 |         await this.type(
+      213 |             phoneNumberField,
+      214 |             value
+        at CheckoutPage.enterPhoneNumber (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:211:32)
+        at CommonStepImpl.enterPhoneNumber (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:362:28)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:402:27)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:398:7)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
