@@ -1,4 +1,4 @@
-productName  :Shore Stripe Modern Classic Shirt,Modern Classic Shirt - Nouveau Floral,The Daily Shirt in Cotton Linen,The Daily Shirt in Linen Soft Stripe,Modern Classic Shirt - Bicolor Leaves
+productName  :Shore Stripe Modern Classic Shirt,Modern Classic Shirt - Nouveau Floral,The Daily Shirt in Cotton Linen,The Daily Shirt in Linen Soft Stripe,Modern Classic Shirt - Bicolor Leaves,Modern Classic Shirt - Nouveau Floral
 BOPIS Flags: []
 BOPIS Flags: []
   2) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:124:5 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
@@ -113,8 +113,8 @@ BOPIS Flags: []
 
     attachment #3: DataLayer_Table_HomePage.csv (text/csv) ─────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","HomePage","ALL_PAGES","segmentID","String","","14","FAIL","segmentID expected value is not configured"
-    "2","HomePage","ALL_PAGES","tealium_random","String","","1704761875754796","FAIL","tealium_random expected value is not...
+    "1","HomePage","ALL_PAGES","segmentID","String","","26","FAIL","segmentID expected value is not configured"
+    "2","HomePage","ALL_PAGES","tealium_random","String","","7249731487548909","FAIL","tealium_random expected value is not...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #4: DataLayer_Table_ProductListingPage.html (text/html) ─────────────────────────
@@ -136,7 +136,7 @@ BOPIS Flags: []
     attachment #5: DataLayer_Table_ProductListingPage.csv (text/csv) ───────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
     "1","ProductListingPage","ALL_PAGES","dom.title","String","","","FAIL","dom.title expected value is not configured"
-    "2","ProductListingPage","ALL_PAGES","mcmid","String","","81651407155341797834296408781563031695","FAIL","mcmid...
+    "2","ProductListingPage","ALL_PAGES","mcmid","String","","50582543462649242691840823659770096512","FAIL","mcmid...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #6: DataLayer_Table_PDPPage.html (text/html) ────────────────────────────────────
@@ -157,8 +157,8 @@ BOPIS Flags: []
 
     attachment #7: DataLayer_Table_PDPPage.csv (text/csv) ──────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","PDPPage","PDP","adobe_category","Array","","[""sale-blouses-and-shirts,""]","FAIL","adobe_category expected value is not configured"
-    "2","PDPPage","ALL_PAGES","mcmid","String","","81651407155341797834296408781563031695","F...
+    "1","PDPPage","PDP","adobe_category","Array","","[""apparel-blouses-and-shirts,""]","FAIL","adobe_category expected value is not configured"
+    "2","PDPPage","ALL_PAGES","mcmid","String","","50582543462649242691840823659770096512"...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #8: DataLayer_Table_CartPage.html (text/html) ───────────────────────────────────
@@ -179,8 +179,8 @@ BOPIS Flags: []
 
     attachment #9: DataLayer_Table_CartPage.csv (text/csv) ─────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555"",""2555"",""2555"",""2555"",""2555"",""1205""]","FAIL","cart_autoapply_item_promo_code expected value is not configured"
-    "2","CartPage","CART_PAGE...
+    "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555"",""2555"",""2555"",""2555"",""2555"",""1205"",""2555""]","FAIL","cart_autoapply_item_promo_code expected value is not configured"
+    "2","CartPage","...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #12: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────
@@ -201,8 +201,8 @@ BOPIS Flags: []
 
     attachment #13: DataLayer_Consolidated_Report.csv (text/csv) ───────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","PDPPage","PDP","adobe_category","Array","","[""sale-blouses-and-shirts,""]","FAIL","adobe_category expected value is not configured"
-    "2","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555"",""2555"...
+    "1","PDPPage","PDP","adobe_category","Array","","[""apparel-blouses-and-shirts,""]","FAIL","adobe_category expected value is not configured"
+    "2","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555"",""25...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #14: screenshot (image/png) ─────────────────────────────────────────────────────
