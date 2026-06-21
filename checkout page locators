@@ -105,6 +105,6 @@ export const checkoutBasePage = {
     // Single definition (the earlier duplicate that pointed at #form-submit
     // was being silently overridden). Verify this matches the real billing button.
     btnContinueBilling: (page: Page) =>
-        page.getByRole('button', { name: 'Continue for billing', exact: true }),
+        page.locator('#billingSubmitBtn'),
 
 };
