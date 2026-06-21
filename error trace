@@ -1,4 +1,4 @@
- 1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:124:5 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
+  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:124:5 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
 
     Error: DataLayer validation failed for HomePage. Please check DataLayer_Table_HomePage.html attachment.
 
@@ -109,37 +109,6 @@
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
 
-    Error: expect(locator).toBeVisible() failed
-
-    Locator: locator('#dwfrm_billing_paymentMethods_comenityCard_cvn').first()
-    Expected: visible
-    Error: element(s) not found
-
-    Call log:
-      - Expect "toBeVisible" with timeout 300000ms
-      - waiting for locator('#dwfrm_billing_paymentMethods_comenityCard_cvn').first()
-
-
-       at utils\BrowserActionsImpl.ts:358
-
-      356 |
-      357 |   async waitForElement(locator: Locator): Promise<void> {
-    > 358 |     await expect(locator.first()).toBeVisible();
-          |                                   ^
-      359 |   }
-      360 |
-      361 |   async scrollIntoView(locator: Locator): Promise<void> {
-        at CheckoutPage.waitForElement (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\utils\BrowserActionsImpl.ts:358:35)
-        at CheckoutPage.enterSecurityCodeForRegisteredUser (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:196:20)
-        at CommonStepImpl.enterSecurityCodeForRegisteredUser (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:679:23)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:184:27)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:179:7)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
-
     attachment #2: DataLayer_Table_HomePage.html (text/html) ───────────────────────────────────
     
             <html>
@@ -159,7 +128,7 @@
     attachment #3: DataLayer_Table_HomePage.csv (text/csv) ─────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
     "1","HomePage","ALL_PAGES","segmentID","String","","70","FAIL","segmentID expected value is not configured"
-    "2","HomePage","ALL_PAGES","tealium_random","String","","3855993139074351","FAIL","tealium_random expected value is not...
+    "2","HomePage","ALL_PAGES","tealium_random","String","","7828346742316556","FAIL","tealium_random expected value is not...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #4: DataLayer_Table_ProductListingPage.html (text/html) ─────────────────────────
@@ -181,7 +150,7 @@
     attachment #5: DataLayer_Table_ProductListingPage.csv (text/csv) ───────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
     "1","ProductListingPage","ALL_PAGES","dom.title","String","","","FAIL","dom.title expected value is not configured"
-    "2","ProductListingPage","ALL_PAGES","mcmid","String","","28962587409394125903333157376924487544","FAIL","mcmid...
+    "2","ProductListingPage","ALL_PAGES","mcmid","String","","28019653482170519772380565176607642223","FAIL","mcmid...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #6: DataLayer_Table_PDPPage.html (text/html) ────────────────────────────────────
@@ -203,7 +172,7 @@
     attachment #7: DataLayer_Table_PDPPage.csv (text/csv) ──────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
     "1","PDPPage","PDP","adobe_category","Array","","[""apparel-blouses-and-shirts,""]","FAIL","adobe_category expected value is not configured"
-    "2","PDPPage","ALL_PAGES","mcmid","String","","28962587409394125903333157376924487544"...
+    "2","PDPPage","ALL_PAGES","mcmid","String","","28019653482170519772380565176607642223"...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #8: DataLayer_Table_CartPage.html (text/html) ───────────────────────────────────
@@ -224,8 +193,8 @@
 
     attachment #9: DataLayer_Table_CartPage.csv (text/csv) ─────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555""]","FAIL","cart_autoapply_item_promo_code expected value is not configured"
-    "2","CartPage","CART_PAGE","cart_autoapply_order_promo_code","Array","...
+    "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555"",""2555""]","FAIL","cart_autoapply_item_promo_code expected value is not configured"
+    "2","CartPage","CART_PAGE","cart_autoapply_order_promo_code",...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #10: DataLayer_Table_CheckoutPage.html (text/html) ──────────────────────────────
@@ -274,11 +243,11 @@
     test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────
 
-    Error Context: test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\error-context.md
-
-    attachment #18: video (video/webm) ─────────────────────────────────────────────────────────
+    attachment #17: video (video/webm) ─────────────────────────────────────────────────────────
     test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\video.webm
     ────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\error-context.md
 
   2) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:23:5 › TC001 - Verify the Datalayer Validation for Guest User E2E script 
 
@@ -367,7 +336,9 @@
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
 
-    TimeoutError: locator.click: Timeout 60000ms exceeded.
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.click: Test ended.
     Call log:
       - waiting for locator('//button[@name=\'submit\' and @type=\'submit\' and normalize-space()=\'Place Order\']')
 
@@ -409,8 +380,8 @@
 
     attachment #3: DataLayer_Table_HomePage.csv (text/csv) ─────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","HomePage","ALL_PAGES","segmentID","String","","73","FAIL","segmentID expected value is not configured"
-    "2","HomePage","ALL_PAGES","tealium_random","String","","5157818508704625","FAIL","tealium_random expected value is not...
+    "1","HomePage","ALL_PAGES","segmentID","String","","55","FAIL","segmentID expected value is not configured"
+    "2","HomePage","ALL_PAGES","tealium_random","String","","1603418138620097","FAIL","tealium_random expected value is not...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #4: DataLayer_Table_ProductListingPage.html (text/html) ─────────────────────────
@@ -431,8 +402,8 @@
 
     attachment #5: DataLayer_Table_ProductListingPage.csv (text/csv) ───────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","ProductListingPage","ALL_PAGES","mcmid","String","","23872662528956409530770498707985111260","FAIL","mcmid expected value is not configured"
-    "2","ProductListingPage","ALL_PAGES","segmentID","String","","73","FAIL","segment...
+    "1","ProductListingPage","ALL_PAGES","mcmid","String","","81366181833490004263444927567101386262","FAIL","mcmid expected value is not configured"
+    "2","ProductListingPage","ALL_PAGES","segmentID","String","","55","FAIL","segment...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #6: DataLayer_Table_PDPPage.html (text/html) ────────────────────────────────────
@@ -453,8 +424,8 @@
 
     attachment #7: DataLayer_Table_PDPPage.csv (text/csv) ──────────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","PDPPage","ALL_PAGES","mcmid","String","","23872662528956409530770498707985111260","FAIL","mcmid expected value is not configured"
-    "2","PDPPage","ALL_PAGES","segmentID","String","","73","FAIL","segmentID expected value is n...
+    "1","PDPPage","ALL_PAGES","mcmid","String","","81366181833490004263444927567101386262","FAIL","mcmid expected value is not configured"
+    "2","PDPPage","ALL_PAGES","segmentID","String","","55","FAIL","segmentID expected value is n...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #8: DataLayer_Table_CartPage.html (text/html) ───────────────────────────────────
@@ -497,11 +468,15 @@
 
     attachment #11: DataLayer_Table_CheckoutPage.csv (text/csv) ────────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
-    "1","CheckoutPage","ALL_PAGES","mcmid","String","","23872662528956409530770498707985111260","FAIL","mcmid expected value is not configured"
-    "2","CheckoutPage","ALL_PAGES","segmentID","String","","73","FAIL","segmentID expected ...
+    "1","CheckoutPage","ALL_PAGES","mcmid","String","","81366181833490004263444927567101386262","FAIL","mcmid expected value is not configured"
+    "2","CheckoutPage","ALL_PAGES","segmentID","String","","55","FAIL","segmentID expected ...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
-    attachment #14: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────
+    attachment #12: screenshot (image/png) ─────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────
     
             <html>
             <head>
@@ -517,14 +492,10 @@
                         margin:...
     ────────────────────────────────────────────────────────────────────────────────────────────
 
-    attachment #15: DataLayer_Consolidated_Report.csv (text/csv) ───────────────────────────────
+    attachment #16: DataLayer_Consolidated_Report.csv (text/csv) ───────────────────────────────
     No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
     "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""2555""]","FAIL","cart_autoapply_item_promo_code expected value is not configured"
     "2","CartPage","CART_PAGE","cart_autoapply_order_promo_code","Array","...
-    ────────────────────────────────────────────────────────────────────────────────────────────
-
-    attachment #16: screenshot (image/png) ─────────────────────────────────────────────────────
-    test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium\test-failed-1.png
     ────────────────────────────────────────────────────────────────────────────────────────────
 
     attachment #17: video (video/webm) ─────────────────────────────────────────────────────────
@@ -542,7 +513,3 @@ To open last HTML report run:
   npx playwright show-report
 
 PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> 
-
-
-
-
