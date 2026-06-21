@@ -1,49 +1,53 @@
-async enterCreditCardDetails(
-    nameOnCard: string,
-    cardNumber: string,
-    expirationMonth: string,
-    expirationYear: string,
-    securityCode: string
-): Promise<this> {
+◇ injected env (17) from .env // tip: ⌘ override existing { override: true }
+  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User › Proceed to checkout as Registered User 
 
-    // Registered users default to the saved "Talbots credit card".
-    // Explicitly select the manual "Credit Card" radio so the Aurus
-    // iframe (#frame_carddetails) renders before we try to fill it.
-    const ccRadio = this.locators.radCreditCard(this.page); // #is-CREDIT_CARD
-    await ccRadio.waitFor({ state: 'visible', timeout: 30000 });
-    await ccRadio.click({ force: true });
+    Error: expect(locator).toBeVisible() failed
 
-    // Wait for the Aurus card iframe to attach after selecting the radio.
-    await this.page
-        .locator('#frame_carddetails')
-        .waitFor({ state: 'attached', timeout: 30000 });
+    Locator: getByRole('link', { name: 'CHECKOUT' }).first()
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
 
-    const name = this.locators.inpNameOnCard(this.page);
-    await name.waitFor({ state: 'visible', timeout: 30000 });
-    await name.click();
-    await name.pressSequentially(nameOnCard, { delay: 50 });
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for getByRole('link', { name: 'CHECKOUT' }).first()
 
-    const num = this.locators.inpCardNumber(this.page);
-    await num.click();
-    await num.pressSequentially(cardNumber, { delay: 50 });
 
-    await this.selectDropdownByValue(
-        this.locators.drpCardExpirationMonth(this.page),
-        expirationMonth
-    );
-    await this.selectDropdownByValue(
-        this.locators.drpCardExpirationYear(this.page),
-        expirationYear
-    );
+       at utils\BrowserActionsImpl.ts:358
 
-    const cvv = this.locators.inpCardSecurityNumber(this.page);
-    await cvv.click();
-    await cvv.pressSequentially(securityCode, { delay: 50 });
-    await cvv.blur();
+      356 |
+      357 |   async waitForElement(locator: Locator): Promise<void> {
+    > 358 |     await expect(locator.first()).toBeVisible({ timeout: 15000 });
+          |                                   ^
+      359 |   }
+      360 |
+      361 |   async scrollIntoView(locator: Locator): Promise<void> {
+        at CartPage.waitForElement (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\utils\BrowserActionsImpl.ts:358:35)
+        at CartPage.proceedToCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CartPage.ts:46:16)
+        at CommonStepImpl.proceedToCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:105:24)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:399:27)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:36)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:25)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:398:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
 
-    // Force focus fully out of the Aurus iframe so it tokenizes the card.
-    await this.page.locator('body').click({ position: { x: 5, y: 5 } });
-    await this.page.waitForTimeout(1500); // give Aurus time to produce the token
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────
 
-    return this;
-}
+    attachment #5: video (video/webm) ──────────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\error-context.md
+
+  1 failed
+    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
+
+To open last HTML report run:
+
+  npx playwright show-report
+
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> 
