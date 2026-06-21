@@ -1,52 +1,58 @@
+async enterCreditCardDetails(
+    nameOnCard: string,
+    cardNumber: string,
+    expirationMonth: string,
+    expirationYear: string,
+    securityCode: string
+): Promise<this> {
 
-PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> npx playwright test test_scripts/DataLayerE2E_FullSample
-◇ injected env (17) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+    // Select the manual "Credit Card" radio.
+    const ccLabel = this.page.locator("label[for='is-CREDIT_CARD']");
+    const ccRadio = this.locators.radCreditCard(this.page);
+    if (await ccLabel.count() > 0) {
+        await ccLabel.click({ force: true });
+    } else {
+        await ccRadio.click({ force: true });
+    }
+    await this.page.waitForTimeout(1500);
 
-Running 1 test using 1 worker
-◇ injected env (0) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-…llSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User
-◇ injected env (17) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-Phone field not present — skipping (likely pre-filled).
-  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User › Proceed to checkout as Registered User 
+    const cardIframe = this.page.locator('#frame_carddetails');
+    const iframeAppeared = await cardIframe
+        .waitFor({ state: 'attached', timeout: 8000 })
+        .then(() => true)
+        .catch(() => false);
 
-    Error: Billing did not advance to Place Order after 3 Continue clicks.
+    if (iframeAppeared) {
+        // --- Blank card-entry iframe path ---
+        const name = this.locators.inpNameOnCard(this.page);
+        await name.waitFor({ state: 'visible', timeout: 30000 });
+        await name.click();
+        await name.pressSequentially(nameOnCard, { delay: 50 });
 
-       at page-objects\CheckoutPage.ts:301
+        const num = this.locators.inpCardNumber(this.page);
+        await num.click();
+        await num.pressSequentially(cardNumber, { delay: 50 });
 
-      299 |         } catch {
-      300 |             if (attempt === 2) {
-    > 301 |                 throw new Error(
-          |                       ^
-      302 |                     'Billing did not advance to Place Order after 3 Continue clicks.'
-      303 |                 );
-      304 |             }
-        at CheckoutPage.clickContinueBilling (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:301:23)
-        at CommonStepImpl.clickContinueButtonOnBillingCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:687:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:410:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:398:7)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+        await this.selectDropdownByValue(this.locators.drpCardExpirationMonth(this.page), expirationMonth);
+        await this.selectDropdownByValue(this.locators.drpCardExpirationYear(this.page), expirationYear);
 
-    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────
-    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────
+        const cvv = this.locators.inpCardSecurityNumber(this.page);
+        await cvv.click();
+        await cvv.pressSequentially(securityCode, { delay: 50 });
+        await cvv.blur();
 
-    attachment #5: video (video/webm) ──────────────────────────────────────────────────────────
-    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────
+        await this.page.locator('body').click({ position: { x: 5, y: 5 } });
+        await this.page.waitForTimeout(2500);
+    } else {
+        // --- Saved-card path: account has a stored card, only CVV needed ---
+        console.log('Saved card detected — entering CVV only.');
+        const cvn = this.locators.inptCardSecurityNumberRegUser(this.page);
+        await cvn.waitFor({ state: 'visible', timeout: 15000 });
+        await cvn.click();
+        await cvn.pressSequentially(securityCode, { delay: 50 });
+        await cvn.blur();
+        await this.page.waitForTimeout(1000);
+    }
 
-    Error Context: test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\error-context.md
-
-  1 failed
-    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
-
-To open last HTML report run:
-
-  npx playwright show-report
-
-PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> 
+    return this;
+}
