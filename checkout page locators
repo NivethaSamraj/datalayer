@@ -9,11 +9,6 @@ const cardFrame = (
 
 /**
  * Base locator repository for Checkout Page.
- *
- * Purpose:
- * - Contains all common locators shared across brands.
- * - Acts as the master source of locator keys for this page.
- * - Override files should reuse these keys when a locator value differs for a brand.
  */
 export const checkoutBasePage = {
 
@@ -28,58 +23,40 @@ export const checkoutBasePage = {
     provinceDropdown: (page: Page) => page.getByRole('combobox', { name: 'Province*' }),
     continueBtn: (page: Page) => page.getByRole('button', { name: 'CONTINUE*' }),
 
+    // Radio is on the MAIN page (verify with document.querySelector('#is-CREDIT_CARD')).
     radCreditCard: (page: Page) => page.locator('#is-CREDIT_CARD'),
-
-    inptSecurityCode: (page: Page) =>
-        page.locator('#secCode, input[name="CVV"], input[aurus-param="cvn" i], input[name="cvn" i]').first(),
 
     inpFirstName:
         (page: Page) =>
-            page.locator(
-                '#dwfrm_singleshipping_shippingAddress_addressFields_firstName'
-            ),
+            page.locator('#dwfrm_singleshipping_shippingAddress_addressFields_firstName'),
 
     inpLastName:
         (page: Page) =>
-            page.locator(
-                '#dwfrm_singleshipping_shippingAddress_addressFields_lastName'
-            ),
+            page.locator('#dwfrm_singleshipping_shippingAddress_addressFields_lastName'),
 
     inpEmailForOrderConfirmation:
         (page: Page) =>
-            page.locator(
-                '#dwfrm_singleshipping_shippingAddress_email_emailAddress'
-            ),
+            page.locator('#dwfrm_singleshipping_shippingAddress_email_emailAddress'),
 
     inpAddress1:
         (page: Page) =>
-            page.locator(
-                '#dwfrm_singleshipping_shippingAddress_addressFields_address1'
-            ),
+            page.locator('#dwfrm_singleshipping_shippingAddress_addressFields_address1'),
 
     inpAddress2Optional:
         (page: Page) =>
-            page.locator(
-                '#dwfrm_singleshipping_shippingAddress_addressFields_address2'
-            ),
+            page.locator('#dwfrm_singleshipping_shippingAddress_addressFields_address2'),
 
     inpZIPCode:
         (page: Page) =>
-            page.locator(
-                '#dwfrm_singleshipping_shippingAddress_addressFields_postal'
-            ),
+            page.locator('#dwfrm_singleshipping_shippingAddress_addressFields_postal'),
 
     inpCity:
         (page: Page) =>
-            page.locator(
-                '#dwfrm_singleshipping_shippingAddress_addressFields_city'
-            ),
+            page.locator('#dwfrm_singleshipping_shippingAddress_addressFields_city'),
 
     drpShippingCountry:
         (page: Page) =>
-            page.locator(
-                "//select[@name='dwfrm_singleshipping_shippingAddress_addressFields_country']"
-            ),
+            page.locator("//select[@name='dwfrm_singleshipping_shippingAddress_addressFields_country']"),
 
     btnContinueShipping:
         (page: Page) =>
@@ -87,23 +64,17 @@ export const checkoutBasePage = {
 
     lblCreditCard:
         (page: Page) =>
-            page.locator(
-                "label[for='is-CREDIT_CARD']"
-            ),
+            page.locator("label[for='is-CREDIT_CARD']"),
 
     lblContinue:
         (page: Page) =>
-            page.locator(
-                "//span[text()='Continue']"
-            ),
+            page.locator("//span[text()='Continue']"),
 
     cardFrame,
 
-    // Aurus card fields — confirmed ids from DOM (#cName, #secCode).
-    // These resolve on the MAIN page. If the card form is actually inside
-    // the #frame_carddetails iframe, use the cardFrame() variants below instead.
+    // ---- Aurus card fields: ALL inside #frame_carddetails iframe ----
     inpNameOnCard: (page: Page) =>
-        page.locator('#cName'),
+        cardFrame(page).locator('#cName'),
 
     inpCardNumber: (page: Page) =>
         cardFrame(page).getByRole('textbox', { name: 'Enter card number' }),
@@ -115,10 +86,12 @@ export const checkoutBasePage = {
         cardFrame(page).getByRole('combobox', { name: 'Select year' }),
 
     inpCardSecurityNumber: (page: Page) =>
-        page.locator('#secCode'),
+        cardFrame(page).locator('#secCode'),
 
     inptCardSecurityNumberRegUser: (page: Page) =>
-        page.locator('#secCode'),
+        cardFrame(page).locator('#secCode'),
+
+    // -----------------------------------------------------------------
 
     lblPlaceOrder: (page: Page) =>
         page.locator("//button[@name='submit' and @type='submit' and normalize-space()='Place Order']"),
@@ -129,8 +102,8 @@ export const checkoutBasePage = {
     inpPhoneNumber: (page: Page) =>
         page.getByRole('textbox', { name: 'Phone' }),
 
-    // NOTE: single definition only — the duplicate that pointed at #form-submit
-    // was being silently overridden by this one. Pick the correct one for billing.
+    // Single definition (the earlier duplicate that pointed at #form-submit
+    // was being silently overridden). Verify this matches the real billing button.
     btnContinueBilling: (page: Page) =>
         page.getByRole('button', { name: 'Continue for billing', exact: true }),
 
