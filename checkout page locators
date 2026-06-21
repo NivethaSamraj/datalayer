@@ -1,10 +1,12 @@
 import { Page } from '@playwright/test';
+
 const cardFrame = (
     page: Page
 ) =>
     page.frameLocator(
         '#frame_carddetails'
     );
+
 /**
  * Base locator repository for Checkout Page.
  *
@@ -12,18 +14,6 @@ const cardFrame = (
  * - Contains all common locators shared across brands.
  * - Acts as the master source of locator keys for this page.
  * - Override files should reuse these keys when a locator value differs for a brand.
- *
- * Example:
- * Base:
- *   userName -> '#userName'
- *
- * Brand Override:
- *   userName -> '#usernameInput'
- *
- * Notes:
- * - Add new common locators here when they are applicable to all brands.
- * - Avoid adding brand-specific locators in this file.
- * - Override files use this file for IntelliSense and key suggestions.
  */
 export const checkoutBasePage = {
 
@@ -37,9 +27,12 @@ export const checkoutBasePage = {
     stateDropdown: (page: Page) => page.getByRole('combobox', { name: 'State*' }),
     provinceDropdown: (page: Page) => page.getByRole('combobox', { name: 'Province*' }),
     continueBtn: (page: Page) => page.getByRole('button', { name: 'CONTINUE*' }),
-    // radCreditCard: (page: Page) => page.getByRole('radio', { name: 'Credit Card', exact:true }),
+
     radCreditCard: (page: Page) => page.locator('#is-CREDIT_CARD'),
-    inptSecurityCode: (page: Page) =>page.locator('#secCode,input[name="CVV"], input[aurus-param="cvn" i], input[name="cvn" i]').first(),
+
+    inptSecurityCode: (page: Page) =>
+        page.locator('#secCode, input[name="CVV"], input[aurus-param="cvn" i], input[name="cvn" i]').first(),
+
     inpFirstName:
         (page: Page) =>
             page.locator(
@@ -92,10 +85,6 @@ export const checkoutBasePage = {
         (page: Page) =>
             page.locator('#form-submit'),
 
-    btnContinueBilling:
-        (page: Page) =>
-            page.locator('#form-submit'),
-
     lblCreditCard:
         (page: Page) =>
             page.locator(
@@ -110,50 +99,23 @@ export const checkoutBasePage = {
 
     cardFrame,
 
+    // Aurus card fields — confirmed ids from DOM (#cName, #secCode).
+    // These resolve on the MAIN page. If the card form is actually inside
+    // the #frame_carddetails iframe, use the cardFrame() variants below instead.
     inpNameOnCard: (page: Page) =>
-        cardFrame(page)
-            .getByRole(
-                'textbox',
-                {
-                    name: 'Enter name on card'
-                }
-            ),
+        page.locator('#cName'),
 
     inpCardNumber: (page: Page) =>
-        cardFrame(page)
-            .getByRole(
-                'textbox',
-                {
-                    name: 'Enter card number'
-                }
-            ),
+        cardFrame(page).getByRole('textbox', { name: 'Enter card number' }),
 
     drpCardExpirationMonth: (page: Page) =>
-        cardFrame(page)
-            .getByRole(
-                'combobox',
-                {
-                    name: 'Select month'
-                }
-            ),
+        cardFrame(page).getByRole('combobox', { name: 'Select month' }),
 
     drpCardExpirationYear: (page: Page) =>
-        cardFrame(page)
-            .getByRole(
-                'combobox',
-                {
-                    name: 'Select year'
-                }
-            ),
+        cardFrame(page).getByRole('combobox', { name: 'Select year' }),
 
     inpCardSecurityNumber: (page: Page) =>
-        cardFrame(page)
-            .getByRole(
-                'textbox',
-                {
-                    name: 'Enter security code'
-                }
-            ),
+        page.locator('#secCode'),
 
     inptCardSecurityNumberRegUser: (page: Page) =>
         page.locator('#secCode'),
@@ -164,8 +126,12 @@ export const checkoutBasePage = {
     drpState: (page: Page) =>
         page.getByRole('combobox', { name: 'State*' }),
 
-    inpPhoneNumber: (page: Page) => page.getByRole('textbox', { name: 'Phone' }),
-    btnContinueBilling: (page: Page) => page.getByRole('button', { name: 'Continue for billing', exact: true}),
+    inpPhoneNumber: (page: Page) =>
+        page.getByRole('textbox', { name: 'Phone' }),
 
+    // NOTE: single definition only — the duplicate that pointed at #form-submit
+    // was being silently overridden by this one. Pick the correct one for billing.
+    btnContinueBilling: (page: Page) =>
+        page.getByRole('button', { name: 'Continue for billing', exact: true }),
 
 };
