@@ -113,6 +113,11 @@ export class CheckoutPage extends BrowserActionImpl {
             this.locators.drpState(this.page),
             state
         );
+
+        console.log(
+    'Selected state:',
+    await this.locators.drpState(this.page).inputValue()
+);
         await this.type(
             this.locators.inpPhoneNumber(this.page),
             phoneNumber
@@ -171,14 +176,18 @@ export class CheckoutPage extends BrowserActionImpl {
         return this;
     }
 
-    async clickContinueShipping(): Promise<this> {
+async clickContinueShipping(): Promise<this> {
+    await this.locators.btnContinueShipping(this.page).click();
 
-        await this.locators.btnContinueShipping(this.page).click();
+    // Talbots checkout is single-page (URL does not change between steps).
+    // Wait for the billing/payment section to render instead of a URL match.
+    await this.page
+        .locator('#payment-methods-area, form#dwfrm_billing, #is-CREDIT_CARD')
+        .first()
+        .waitFor({ state: 'visible', timeout: 30000 });
 
-        return this;
-    }
-
-
+    return this;
+}
     async clickPlaceOrder(): Promise<this> {
 
         await this.locators.lblPlaceOrder(this.page).click();
@@ -192,28 +201,46 @@ export class CheckoutPage extends BrowserActionImpl {
         return this;
     }
 
-    async enterSecurityCodeForRegisteredUser(securityCode: string): Promise<this> {
-        await this.waitForElement(this.locators.inptCardSecurityNumberRegUser(this.page))
-        await this.type(
-            this.locators.inptCardSecurityNumberRegUser(this.page),
-            securityCode
-        );
+async enterSecurityCodeForRegisteredUser(
+    securityCode: string
+): Promise<this> {
 
-        return this;
-    }
+    console.log(
+        'Before CVV URL:',
+        this.page.url()
+    );
 
-    async clickContinueBilling(): Promise<this> {
+    const cvn =
+        this.locators.inptCardSecurityNumberRegUser(this.page);
 
-        const continueBilling =
-            this.locators.btnContinueBilling(this.page);
-        if (await continueBilling.isVisible()) {
-            await this.waitForElement(this.locators.btnContinueBilling(this.page));
-            await this.page.keyboard.press('Tab');
-            await this.scrollIntoView(this.locators.btnContinueBilling(this.page))
-            await this.locators.btnContinueBilling(this.page).click({ force: true });
-        }
+    await cvn.waitFor({
+        state: 'visible',
+        timeout: 30000
+    });
 
+    await cvn.click();
 
-        return this;
-    }
+    await cvn.pressSequentially(
+        securityCode,
+        { delay: 50 }
+    );
+
+    return this;
+}
+
+ async clickContinueBilling(): Promise<this> {
+    const continueBilling = this.locators.btnContinueBilling(this.page);
+
+    // Wait for it to actually exist rather than instant isVisible() check
+    await continueBilling.waitFor({ state: 'visible', timeout: 30000 });
+    await this.scrollIntoView(continueBilling);
+    await this.page.keyboard.press('Tab');
+    await continueBilling.click({ force: true });
+
+    // Confirm billing actually advanced to the Place Order step
+    await this.locators.lblPlaceOrder(this.page)
+        .waitFor({ state: 'visible', timeout: 30000 });
+
+    return this;
+}
 }
