@@ -1,28 +1,60 @@
-async clickContinueShipping(): Promise<this> {
-    const btn = this.page.locator('#form-submit:visible').first();
-    const billing = this.page
-        .locator('#payment-methods-area, form#dwfrm_billing, #is-CREDIT_CARD')
-        .first();
 
-    for (let attempt = 0; attempt < 3; attempt++) {
-        await btn.waitFor({ state: 'visible', timeout: 30000 });
-        await btn.scrollIntoViewIfNeeded();
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> npx playwright test test_scripts/DataLayerE2E_FullSample
+◇ injected env (17) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
 
-        // Small settle so the page's submit handler is attached before we click.
-        await this.page.waitForTimeout(1000);
-        await btn.click();
+Running 1 test using 1 worker
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
+…2E_FullSample.spec.ts:252:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script
+◇ injected env (17) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+Selected state: NC
+Entered phone: 6175551234
+  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:252:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script › Proceed to checkout as guest 
 
-        try {
-            await billing.waitFor({ state: 'visible', timeout: 15000 });
-            return this; // advanced
-        } catch {
-            if (attempt === 2) {
-                throw new Error(
-                    'Shipping did not advance to billing after 3 Continue clicks.'
-                );
-            }
-            // else loop and click again
-        }
-    }
-    return this;
-}
+    Test timeout of 300000ms exceeded.
+
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
+    Call log:
+      - waiting for locator('button.place-order-top-btn') to be visible
+
+
+       at page-objects\CheckoutPage.ts:264
+
+      262 |         // Confirm billing actually advanced to the Place Order step
+      263 |         await this.locators.lblPlaceOrder(this.page)
+    > 264 |             .waitFor({ state: 'visible', timeout: 30000 });
+          |              ^
+      265 |
+      266 |         return this;
+      267 |     }
+        at CheckoutPage.clickContinueBilling (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:264:14)
+        at CommonStepImpl.clickContinueButtonOnBillingCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:687:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:317:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:302:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: video (video/webm) ──────────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium\error-context.md
+
+  Slow test file: [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts (5.0m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:252:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script 
+
+To open last HTML report run:
+
+  npx playwright show-report
+
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> 
