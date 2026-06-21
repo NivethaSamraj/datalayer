@@ -1,4 +1,4 @@
-async enterCreditCardDetails(
+  async enterCreditCardDetails(
     nameOnCard: string,
     cardNumber: string,
     expirationMonth: string,
@@ -6,19 +6,32 @@ async enterCreditCardDetails(
     securityCode: string
 ): Promise<this> {
 
-    // Registered users default to the saved "Talbots credit card".
-    // Explicitly select the manual "Credit Card" radio so the Aurus iframe renders.
-    const ccRadio = this.locators.radCreditCard(this.page); // #is-CREDIT_CARD
-    await ccRadio.waitFor({ state: 'visible', timeout: 30000 });
-    await ccRadio.click({ force: true });
-
-    // Wait for the Aurus card iframe to render after selecting the radio.
-    await this.page.locator('#frame_carddetails').waitFor({ state: 'attached', timeout: 30000 });
-
     const name = this.locators.inpNameOnCard(this.page);
     await name.waitFor({ state: 'visible', timeout: 30000 });
     await name.click();
     await name.pressSequentially(nameOnCard, { delay: 50 });
 
-    // ... rest stays the same (card number, expiry, cvv, blur, body-click)
+    const num = this.locators.inpCardNumber(this.page);
+    await num.click();
+    await num.pressSequentially(cardNumber, { delay: 50 });
+
+    await this.selectDropdownByValue(
+        this.locators.drpCardExpirationMonth(this.page),
+        expirationMonth
+    );
+    await this.selectDropdownByValue(
+        this.locators.drpCardExpirationYear(this.page),
+        expirationYear
+    );
+
+    const cvv = this.locators.inpCardSecurityNumber(this.page);
+    await cvv.click();
+    await cvv.pressSequentially(securityCode, { delay: 50 });
+    await cvv.blur();
+
+    // Force focus fully out of the Aurus iframe so it tokenizes the card.
+    await this.page.locator('body').click({ position: { x: 5, y: 5 } });
+    await this.page.waitForTimeout(1500); // give Aurus time to produce the token
+
+    return this;
 }
