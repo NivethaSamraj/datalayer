@@ -90,9 +90,11 @@ export const checkoutBasePage = {
 
     btnContinueShipping:
         (page: Page) =>
-            page.locator(
-                "//button[@id='form-submit']//span[text()='Continue']"
-            ),
+            page.locator('#form-submit'),
+
+    btnContinueBilling:
+        (page: Page) =>
+            page.locator('#form-submit'),
 
     lblCreditCard:
         (page: Page) =>
