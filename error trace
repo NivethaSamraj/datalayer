@@ -1,33 +1,34 @@
-◇ injected env (17) from .env // tip: ⌘ override existing { override: true }
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> npx playwright test test_scripts/DataLayerE2E_FullSample
+◇ injected env (17) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+
+Running 1 test using 1 worker
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+…llSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User
+◇ injected env (17) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+Entered phone (registered): 6175551234
   1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User › Proceed to checkout as Registered User 
 
-    Error: expect(locator).toBeVisible() failed
-
-    Locator: getByRole('link', { name: 'CHECKOUT' }).first()
-    Expected: visible
-    Timeout: 15000ms
-    Error: element(s) not found
-
+    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
     Call log:
-      - Expect "toBeVisible" with timeout 15000ms
-      - waiting for getByRole('link', { name: 'CHECKOUT' }).first()
+      - waiting for locator('#frame_carddetails')
 
 
-       at utils\BrowserActionsImpl.ts:358
+       at page-objects\CheckoutPage.ts:152
 
-      356 |
-      357 |   async waitForElement(locator: Locator): Promise<void> {
-    > 358 |     await expect(locator.first()).toBeVisible({ timeout: 15000 });
-          |                                   ^
-      359 |   }
-      360 |
-      361 |   async scrollIntoView(locator: Locator): Promise<void> {
-        at CartPage.waitForElement (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\utils\BrowserActionsImpl.ts:358:35)
-        at CartPage.proceedToCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CartPage.ts:46:16)
-        at CommonStepImpl.proceedToCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:105:24)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:399:27)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:36)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:25)
+      150 |     await this.page
+      151 |         .locator('#frame_carddetails')
+    > 152 |         .waitFor({ state: 'attached', timeout: 30000 });
+          |          ^
+      153 |
+      154 |     const name = this.locators.inpNameOnCard(this.page);
+      155 |     await name.waitFor({ state: 'visible', timeout: 30000 });
+        at CheckoutPage.enterCreditCardDetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:152:10)
+        at CommonStepImpl.enterCreditcarddetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:389:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:409:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:398:7)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
@@ -50,4 +51,4 @@ To open last HTML report run:
 
   npx playwright show-report
 
-PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> 
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> npx playwright show-report
