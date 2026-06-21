@@ -134,11 +134,10 @@ export class CheckoutPage extends BrowserActionImpl {
         );
 
         await this.clear(this.locators.inpCardNumber(this.page), "CC Number", true);
-        await this.type(
+        await this.click(
             this.locators.inpCardNumber(this.page),
-            cardNumber
         );
-
+        await this.locators.inpCardNumber(this.page).pressSequentially(cardNumber, { delay: 50 })
         await this.selectDropdownByValue(
             this.locators.drpCardExpirationMonth(this.page),
             expirationMonth
@@ -148,12 +147,6 @@ export class CheckoutPage extends BrowserActionImpl {
             this.locators.drpCardExpirationYear(this.page),
             expirationYear
         );
-
-        await this.type(
-            this.locators.inpCardNumber(this.page),
-            cardNumber
-        );
-
         await this.type(
             this.locators.inpCardSecurityNumber(this.page),
             securityCode
@@ -187,15 +180,8 @@ export class CheckoutPage extends BrowserActionImpl {
 
 
     async clickPlaceOrder(): Promise<this> {
-        const buttons =this.page.getByRole('button');
-        const n = await buttons.count();
-        for (let i = 0; i < n; i++) {
-            console.log('BTN',i,JSON.stringify(await buttons.nth(i).textContent())?.trim());
-        }
-        const placeOrder = this.locators.lblPlaceOrder(this.page);
-        await placeOrder.waitFor({ state: 'visible' });
-        await placeOrder.scrollIntoViewIfNeeded();
-        await placeOrder.click();
+
+        await this.locators.lblPlaceOrder(this.page).click();
 
         return this;
     }
@@ -217,9 +203,16 @@ export class CheckoutPage extends BrowserActionImpl {
     }
 
     async clickContinueBilling(): Promise<this> {
-        await this.waitForElement(this.locators.btnContinueBilling(this.page));
 
-        await this.locators.btnContinueBilling(this.page).click();
+        const continueBilling =
+            this.locators.btnContinueBilling(this.page);
+        if (await continueBilling.isVisible()) {
+            await this.waitForElement(this.locators.btnContinueBilling(this.page));
+            await this.page.keyboard.press('Tab');
+            await this.scrollIntoView(this.locators.btnContinueBilling(this.page))
+            await this.locators.btnContinueBilling(this.page).click({ force: true });
+        }
+
 
         return this;
     }
