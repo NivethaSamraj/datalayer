@@ -1,0 +1,35 @@
+async enterCreditCardDetails(
+    nameOnCard: string,
+    cardNumber: string,
+    expirationMonth: string,
+    expirationYear: string,
+    securityCode: string
+): Promise<this> {
+
+    const name = this.locators.inpNameOnCard(this.page);
+    await name.waitFor({ state: 'visible', timeout: 30000 });
+    await name.click();
+    await name.pressSequentially(nameOnCard, { delay: 50 });
+
+    const num = this.locators.inpCardNumber(this.page);
+    await num.click();
+    await num.pressSequentially(cardNumber, { delay: 50 });
+
+    await this.selectDropdownByValue(
+        this.locators.drpCardExpirationMonth(this.page),
+        expirationMonth
+    );
+    await this.selectDropdownByValue(
+        this.locators.drpCardExpirationYear(this.page),
+        expirationYear
+    );
+
+    const cvv = this.locators.inpCardSecurityNumber(this.page);
+    await cvv.click();
+    await cvv.pressSequentially(securityCode, { delay: 50 });
+
+    // Force the Aurus iframe to tokenize/validate the card before submit.
+    await cvv.blur();
+
+    return this;
+}
