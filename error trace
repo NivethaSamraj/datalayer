@@ -1,4 +1,3 @@
-
 PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> npx playwright test test_scripts/DataLayerE2E_FullSample
 ◇ injected env (17) from .env // tip: ⌘ override existing { override: true }
 ◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
