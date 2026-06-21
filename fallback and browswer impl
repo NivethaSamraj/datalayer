@@ -18,19 +18,6 @@ type FallbackResult = {
 
 /**
  * Attempts to resolve an element using a sequence of fallback strategies.
- *
- * The function will:
- * - attempt the DB primary locator
- * - try stored smart locators in priority order
- * - request AI-assisted locators when heuristics fail
- *
- * It logs healing activity and persists healing logs when a resolution succeeds.
- *
- * @param page - Playwright `Page` instance used for validation and screenshots
- * @param elementName - Logical name of the element as stored in the healing DB
- * @param primaryLocator - Original locator attempted by the test
- * @param testName - Optional test name for logging and reporting
- * @returns Promise<FallbackResult> - Resolved `Locator` and the strategy used
  */
 export async function findWithFallback(
   page: Page,
@@ -38,6 +25,17 @@ export async function findWithFallback(
   primaryLocator: Locator,
   testName: string = 'default-test'
 ): Promise<FallbackResult> {
+
+  // --- HEALING DISABLED ---
+  // When DISABLE_HEALING=true, skip DB/smart/AI healing entirely and surface
+  // the real locator failure immediately, instead of masking it behind stale
+  // DB entries and the (currently invalid) Azure OpenAI key.
+  if (process.env.DISABLE_HEALING === 'true') {
+    throw new Error(
+      `[healing disabled] Locator failed for "${elementName}". ` +
+      `Original locator: ${primaryLocator.toString()}`
+    );
+  }
 
   const attempted: string[] = [];
 
@@ -106,7 +104,6 @@ export async function findWithFallback(
         errorMessage: null,
       });
 
-      // Expose resolution to test report
       await test.step('DB Primary locator resolved', async () => {
         try {
           allure.attachment(
@@ -217,7 +214,6 @@ export async function findWithFallback(
         errorMessage: null,
       });
 
-      // Report resolver success to test/Allure
       await test.step(`Healed using smart locator: ${key}`, async () => {
         try {
           allure.attachment(
@@ -259,10 +255,6 @@ export async function findWithFallback(
 
   try {
 
-    // =========================================================
-    // CURRENT SCREENSHOT
-    // =========================================================
-
     const screenshotBuffer =
       await page.screenshot({
         fullPage: true
@@ -271,10 +263,6 @@ export async function findWithFallback(
     const currentPageScreenshot =
       screenshotBuffer.toString('base64');
 
-    // =========================================================
-    // OLD ELEMENT SCREENSHOT
-    // =========================================================
-
     const oldElementScreenshot =
       element?.element_screenshot
         ? Buffer
@@ -282,20 +270,12 @@ export async function findWithFallback(
           .toString('base64')
         : null;
 
-    // =========================================================
-    // OLD FULL PAGE SCREENSHOT
-    // =========================================================
-
     const oldPageScreenshot =
       element?.full_page_screenshot
         ? Buffer
           .from(element.full_page_screenshot)
           .toString('base64')
         : null;
-
-    // =========================================================
-    // OLD OUTER HTML
-    // =========================================================
 
     const oldOuterHTML =
       element?.outer_html || '';
@@ -311,10 +291,6 @@ export async function findWithFallback(
       'Sending healing request to AI model'
     );
 
-    // =========================================================
-    // AI CALL
-    // =========================================================
-
     const aiResponse = await getAILocator({
       elementName,
       failedLocator: primaryLocator.toString(),
@@ -328,10 +304,6 @@ export async function findWithFallback(
       meta: element?.meta || {},
     });
 
-    // =========================================================
-    // VALIDATE AI RESPONSE
-    // =========================================================
-
     if (
       !aiResponse ||
       !Array.isArray(aiResponse.candidates) ||
@@ -343,20 +315,12 @@ export async function findWithFallback(
       );
     }
 
-    // =========================================================
-    // SORT BY CONFIDENCE
-    // =========================================================
-
     const candidates =
       [...aiResponse.candidates]
         .sort(
           (a, b) =>
             b.confidence - a.confidence
         );
-
-    // =========================================================
-    // AI RESPONSE LOGGING
-    // =========================================================
 
     HealingLogger.subSection(
       'AI CANDIDATES'
@@ -382,10 +346,6 @@ export async function findWithFallback(
         );
       }
     );
-
-    // =========================================================
-    // VALIDATION LOOP
-    // =========================================================
 
     let validatedLocator: Locator | null =
       null;
@@ -488,10 +448,6 @@ export async function findWithFallback(
       break;
     }
 
-    // =========================================================
-    // HEALING SUCCESS
-    // =========================================================
-
     if (
       validatedLocator &&
       winningCandidate
@@ -534,7 +490,6 @@ export async function findWithFallback(
         errorMessage: null,
       });
 
-      // Attach AI healing result to test report
       await test.step('AI Healing - chosen locator', async () => {
         try {
           allure.attachment(
@@ -561,10 +516,6 @@ export async function findWithFallback(
         usedStrategy: 'AI',
       };
     }
-
-    // =========================================================
-    // ALL FAILED
-    // =========================================================
 
     throw new Error(
       'None of the AI candidate locators were valid'
@@ -606,12 +557,8 @@ export function buildLocator(
 
     locatorStr = locatorStr.trim();
 
-    // Remove page. prefix if AI returns it
     locatorStr = locatorStr.replace(/^page\./, '');
 
-    // -----------------------------
-    // getByRole
-    // -----------------------------
     if (locatorStr.startsWith('getByRole')) {
 
       const role = locatorStr.match(
@@ -635,9 +582,6 @@ export function buildLocator(
       }
     }
 
-    // -----------------------------
-    // getByTestId
-    // -----------------------------
     if (locatorStr.startsWith('getByTestId')) {
 
       const val = locatorStr.match(
@@ -649,9 +593,6 @@ export function buildLocator(
       }
     }
 
-    // -----------------------------
-    // getByText
-    // -----------------------------
     if (locatorStr.startsWith('getByText')) {
 
       const val = locatorStr.match(
@@ -666,9 +607,6 @@ export function buildLocator(
       }
     }
 
-    // -----------------------------
-    // getByPlaceholder
-    // -----------------------------
     if (locatorStr.startsWith('getByPlaceholder')) {
 
       const val = locatorStr.match(
@@ -683,9 +621,6 @@ export function buildLocator(
       }
     }
 
-    // -----------------------------
-    // getByLabel
-    // -----------------------------
     if (locatorStr.startsWith('getByLabel')) {
 
       const val = locatorStr.match(
@@ -700,9 +635,6 @@ export function buildLocator(
       }
     }
 
-    // -----------------------------
-    // getByAltText
-    // -----------------------------
     if (locatorStr.startsWith('getByAltText')) {
 
       const val = locatorStr.match(
@@ -717,9 +649,6 @@ export function buildLocator(
       }
     }
 
-    // -----------------------------
-    // getByTitle
-    // -----------------------------
     if (locatorStr.startsWith('getByTitle')) {
 
       const val = locatorStr.match(
@@ -734,9 +663,6 @@ export function buildLocator(
       }
     }
 
-    // -----------------------------
-    // page.locator(...) / locator(...)
-    // -----------------------------
     if (locatorStr.startsWith('locator(')) {
 
       const val = locatorStr.match(
@@ -748,9 +674,6 @@ export function buildLocator(
       }
     }
 
-    // -----------------------------
-    // Raw XPath
-    // -----------------------------
     if (
       locatorStr.startsWith('//') ||
       locatorStr.startsWith('(//') ||
@@ -759,9 +682,6 @@ export function buildLocator(
       return page.locator(locatorStr);
     }
 
-    // -----------------------------
-    // Raw CSS
-    // -----------------------------
     return page.locator(locatorStr);
 
   } catch (error) {
@@ -846,686 +766,7 @@ export async function isValidLocator(
     return false;
   }
 }
+
 function escapeRegex(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import { Page, Locator, expect, test } from '@playwright/test';
-import { BrowserAction } from './BrowserAction';
-import { buildSmartLocatorBundle, captureFullPageScreenshot, getElementContextDOM, getElementOuterHTML, getMinimalFullDOM } from '../utils/selfHealing';
-import { captureElementScreenshot } from '../utils/selfHealing';
-import { getElement, saveElement } from '../core/db/elementRepo';
-import { allure } from 'allure-playwright';
-import { findWithFallback } from '../core/healing/fallbackEngine';
-
-/**
- * Concrete implementation of the `BrowserAction` interface using Playwright.
- *
- * This class centralizes common browser interactions (click, type, select,
- * screenshotting and fallback-based element resolution) and instruments
- * element captures into the healing database when new elements are seen.
- */
-export default class BrowserActionImpl implements BrowserAction {
-
-  private locatorMap = new WeakMap<Locator, string>();
-
-  protected generateElementNamesForSelfHealing(pageObject: any) {
-
-    const pageName = pageObject.constructor.name;
-
-    for (const key of Object.keys(pageObject)) {
-
-      const value = pageObject[key];
-
-      if (
-        value &&
-        typeof value === 'object' &&
-        typeof value.fill === 'function'
-      ) {
-
-        this.locatorMap.set(
-          value,
-          `${pageName}_${key}`
-        );
-      }
-    }
-  }
-
-
-  /**
-   * Get a registered, human-friendly element name for a locator when available.
-   *
-   * @param locator - Playwright `Locator` instance
-   * @returns string - Registered element name or 'Unknown_Element'
-   */
-  protected getElementName(locator: Locator): string {
-
-    return (
-      this.locatorMap.get(locator) ??
-      'Unknown_Element'
-    );
-  }
-
-  async click(
-    locator: Locator,
-    waitForPageRefresh: boolean = false
-  ): Promise<void> {
-
-    const page = locator.page();
-
-    const elementName =
-      this.getElementName(locator);
-
-    let finalLocator = locator;
-    let usedFallback = false;
-
-    try {
-
-      await locator.waitFor({
-        state: 'visible',
-        timeout: 5000
-      });
-
-      await locator.click();
-
-    } catch {
-
-      const result = await findWithFallback(
-        page,
-        elementName,
-        locator
-      );
-
-      finalLocator = result.locator;
-      usedFallback = true;
-
-      await finalLocator.click();
-    }
-
-    if (!usedFallback) {
-      await test.step('Capture & Persist Element', async () => {
-        const exists = await this.elementExistsInDB(elementName);
-
-        if (!exists) {
-          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
-
-          // Attach the generated smart locators to Allure for visibility
-          try {
-            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
-            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
-          } catch (err) {
-            // non-fatal
-          }
-        }
-      });
-    }
-
-    if (waitForPageRefresh) {
-
-      await this.waitForPageRefresh(
-        page,
-        elementName
-      );
-
-      await page.waitForLoadState(
-        'load'
-      );
-    }
-  }
-
-  async selectDropdownByVisibleText(
-    locator: Locator,
-    optionValue: string,
-    waitForPageRefresh: boolean = false
-  ): Promise<void> {
-
-    const page = locator.page();
-
-    const elementName =
-      this.getElementName(locator);
-
-    let finalLocator = locator;
-    let usedFallback = false;
-
-    try {
-
-      await locator.waitFor({
-        state: 'visible',
-        timeout: 5000
-      });
-
-      await locator.selectOption({
-        label: optionValue
-      });
-
-      await locator.press('Tab');
-
-    } catch {
-
-      const result = await findWithFallback(
-        page,
-        elementName,
-        locator
-      );
-
-      finalLocator = result.locator;
-      usedFallback = true;
-
-      await finalLocator.selectOption({
-        label: optionValue
-      });
-
-      await finalLocator.press('Tab');
-    }
-
-    if (!usedFallback) {
-      await test.step('Capture & Persist Element', async () => {
-        const exists = await this.elementExistsInDB(elementName);
-
-        if (!exists) {
-          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
-
-          try {
-            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
-            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
-          } catch (err) {
-            // non-fatal
-          }
-        }
-      });
-    }
-
-    if (waitForPageRefresh) {
-
-      await this.waitForPageRefresh(
-        page,
-        elementName
-      );
-
-      await page.waitForLoadState(
-        'load'
-      );
-    }
-  }
-
-  async selectDropdownByIndex(
-    locator: Locator,
-    index: number,
-    waitForPageRefresh: boolean = false
-  ): Promise<void> {
-
-    const page = locator.page();
-
-    const elementName =
-      this.getElementName(locator);
-
-    let finalLocator = locator;
-    let usedFallback = false;
-
-    try {
-
-      await locator.waitFor({
-        state: 'visible',
-        timeout: 5000
-      });
-
-      await locator.selectOption({
-        index
-      });
-
-    } catch {
-
-      const result = await findWithFallback(
-        page,
-        elementName,
-        locator
-      );
-
-      finalLocator = result.locator;
-      usedFallback = true;
-
-      await finalLocator.waitFor({
-        state: 'visible'
-      });
-
-      await finalLocator.selectOption({
-        index
-      });
-    }
-
-    if (!usedFallback) {
-      await test.step('Capture & Persist Element', async () => {
-        const exists = await this.elementExistsInDB(elementName);
-
-        if (!exists) {
-          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
-
-          try {
-            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
-            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
-          } catch (err) {
-            // non-fatal
-          }
-        }
-      });
-    }
-
-    if (waitForPageRefresh) {
-
-      await this.waitForPageRefresh(
-        page,
-        elementName
-      );
-
-      await page.waitForLoadState(
-        'load'
-      );
-    }
-  }
-
-  async selectDropdownByRandomIndex(
-    locator: Locator
-  ): Promise<void> {
-
-    await this.selectDropdownByIndex(
-      locator,
-      -1
-    );
-  }
-
-  async selectDropdownByValue(
-    locator: Locator,
-    value: string,
-    waitForPageRefresh: boolean = false
-  ): Promise<void> {
-
-    const page = locator.page();
-
-    const elementName =
-      this.getElementName(locator);
-
-    let finalLocator = locator;
-    let usedFallback = false;
-
-    try {
-
-      await locator.waitFor({
-        state: 'visible',
-        timeout: 5000
-      });
-
-      await locator.selectOption(
-        value
-      );
-
-    } catch {
-
-      const result = await findWithFallback(
-        page,
-        elementName,
-        locator
-      );
-
-      finalLocator = result.locator;
-      usedFallback = true;
-
-      await finalLocator.selectOption(
-        value
-      );
-    }
-
-    if (!usedFallback) {
-      await test.step('Capture & Persist Element', async () => {
-        const exists = await this.elementExistsInDB(elementName);
-
-        if (!exists) {
-          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
-
-          try {
-            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
-            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
-          } catch (err) {
-            // non-fatal
-          }
-        }
-      });
-    }
-
-    if (waitForPageRefresh) {
-
-      await this.waitForPageRefresh(
-        page,
-        elementName
-      );
-
-      await page.waitForLoadState(
-        'load'
-      );
-    }
-  }
-
-
-
-  async waitForElement(locator: Locator): Promise<void> {
-    await expect(locator.first()).toBeVisible();
-  }
-
-  async scrollIntoView(locator: Locator): Promise<void> {
-    await locator.first().scrollIntoViewIfNeeded();
-  }
-  async type(
-    locator: Locator,
-    text: string,
-    waitForPageRefresh: boolean = false
-  ): Promise<void> {
-
-    const page = locator.page();
-
-    const elementName =
-      this.getElementName(locator);
-
-    let finalLocator = locator;
-    let usedFallback = false;
-
-    try {
-
-      await locator.fill('');
-      await locator.fill(text);
-
-    } catch (error) {
-
-      const result = await findWithFallback(
-        page,
-        elementName,
-        locator
-      );
-
-      finalLocator = result.locator;
-
-      usedFallback =
-        result.usedStrategy !== 'primary';
-
-      await finalLocator.fill('');
-      await finalLocator.fill(text);
-    }
-
-    if (!usedFallback) {
-      await test.step('Capture & Persist Element', async () => {
-        const exists = await this.elementExistsInDB(elementName);
-
-        if (!exists) {
-          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
-
-          try {
-            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
-            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
-          } catch (err) {
-            // non-fatal
-          }
-        }
-      });
-    }
-
-    if (waitForPageRefresh) {
-
-      await finalLocator.press('Tab');
-
-      await this.waitForPageRefresh(
-        page,
-        elementName
-      );
-
-      await page.waitForLoadState(
-        'load'
-      );
-    }
-  }
-
-  async getText(locator: Locator): Promise<string> {
-    return await locator.first().innerText();
-  }
-
-  async confirmAlert(page: Page): Promise<void> {
-    page.once('dialog', async (dialog) => await dialog.accept());
-  }
-
-  async waitForDisappearance(locator: Locator): Promise<void> {
-    await expect(locator).toBeHidden();
-  }
-
-  async waitForPageRefresh(page: Page, elementDescription: string): Promise<void> {
-    await this.waitForDisappearance(page.locator("div[class*='disable-click']"));
-  }
-  async moveToElement(locator: Locator): Promise<void> {
-    await locator.hover();
-  }
-
-  async isEnabled(locator: Locator): Promise<boolean> {
-    return (await locator.isVisible()) && (await locator.isEnabled());
-  }
-
-  async isDisabled(locator: Locator): Promise<boolean> {
-    return await locator.isDisabled();
-  }
-
-  async verifyElementTextIsDisplayed(
-    locator: Locator,
-    expectedText: string
-  ): Promise<void> {
-
-    const actual = await locator.first().innerText();
-
-    if (actual !== expectedText) {
-      throw new Error(`Expected: ${expectedText}, Actual: ${actual}`);
-    }
-  }
-
-  async verifyPartialText(
-    locator: Locator,
-    expectedText: string
-  ): Promise<boolean> {
-    const actual = await locator.textContent();
-    return actual?.includes(expectedText) ?? false;
-  }
-
-  async getInputText(locator: Locator): Promise<string> {
-    return await locator.inputValue();
-  }
-
-  async verifyInputText(
-    locator: Locator,
-    expectedText: string
-  ): Promise<boolean> {
-    const actual = await locator.inputValue();
-    return actual.includes(expectedText);
-  }
-
-  async getAttribute(
-    locator: Locator,
-    attribute: string
-  ): Promise<string | null> {
-    return await locator.getAttribute(attribute);
-  }
-
-  async verifyAttribute(
-    locator: Locator,
-    attribute: string,
-    expectedText: string
-  ): Promise<boolean> {
-
-    const actual = await locator.getAttribute(attribute);
-
-    if (actual?.includes(expectedText)) return true;
-
-    throw new Error(`Expected attribute ${expectedText} not matching`);
-  }
-
-  async verifyNotDisplayed(locator: Locator): Promise<boolean> {
-    return !(await locator.isVisible());
-  }
-
-  async isElementDisplaying(locator: Locator): Promise<boolean> {
-    await locator.first().waitFor({ state: 'visible' });
-    return true;
-  }
-
-  async getListOfElements(locator: Locator): Promise<Locator[]> {
-    await locator.first().waitFor({ state: 'visible' });
-    return locator.all();
-  }
-
-  async confirmAlertWithText(
-    page: Page,
-    expectedAlertMessage: string
-  ): Promise<void> {
-
-    page.once('dialog', async (dialog) => {
-      if (dialog.message() === expectedAlertMessage) {
-        await dialog.accept();
-      } else {
-        throw new Error("Alert message mismatch");
-      }
-    });
-  }
-
-  async evaluate(page: Page, expression: any): Promise<void> {
-    await page.evaluate(expression);
-  }
-
-  async scrollToTopOfThePage(page: Page): Promise<void> {
-    await this.evaluate(page, () => window.scrollTo(0, 0));
-  }
-
-  async uploadFile(locator: Locator, value: string): Promise<void> {
-    await locator.setInputFiles(value);
-  }
-
-  async check(locator: Locator): Promise<boolean> {
-    await locator.check();
-    return true;
-  }
-
-  async pause(page: Page, type: string): Promise<void> {
-    const map: Record<string, number> = {
-      deepinferior: 500,
-      low: 1000,
-      medium: 2000,
-      high: 3000
-    };
-    await page.waitForTimeout(map[type.toLowerCase()] || 500);
-  }
-
-  async getListOfElementsSize(
-    locator: Locator,
-    timeout: number
-  ): Promise<number> {
-    try {
-      await locator.first().waitFor({ state: 'visible', timeout });
-      return await locator.count();
-    } catch {
-      return 0;
-    }
-  }
-
-  async clear(
-    locator: Locator,
-    elementDescription: string,
-    waitForPageRefresh: boolean = false
-  ): Promise<void> {
-
-    await locator.fill("");
-
-    if (waitForPageRefresh) {
-      await locator.press("Tab");
-      await this.waitForPageRefresh(locator.page(), elementDescription);
-      await locator.page().waitForLoadState('load');
-    }
-  }
-
-  async getLambdaTestLink(page: Page): Promise<string> {
-
-    if (process.env.RUN_ON_LAMBDA !== 'true') return '';
-
-    try {
-      const response = await page.evaluate(() =>
-        (globalThis as any).lt?.getTestDetails?.() ?? null
-      );
-
-      const parsed = typeof response === 'string' ? JSON.parse(response) : response;
-      return parsed?.data?.public_url || '';
-
-    } catch {
-      return '';
-    }
-  }
-
-  private async captureAndStore(
-    locator: Locator,
-    elementName: string,
-    primaryLocator: string
-  ) {
-    const page = locator.page();
-
-    const bundle = await buildSmartLocatorBundle(locator, elementName);
-
-    const [elementScreenshot, fullPageScreenshot] = await Promise.all([
-      captureElementScreenshot(locator),
-      captureFullPageScreenshot(page)
-    ]);
-
-    const outerHTML = await getElementOuterHTML(locator);
-    const context_dom = await getElementContextDOM(locator);
-
-    await saveElement({
-      elementName: bundle.elementName,
-      pageUrl: page.url(),
-      primaryLocator,
-      smartLocators: bundle.smartLocators,
-      meta: bundle.meta,
-      elementScreenshot,
-      fullPageScreenshot,
-      outerHTML,
-      context_dom,
-    });
-  }
-
-
-  /**
-   * Check whether an element record already exists in the persisted store.
-   *
-   * @param elementName - Name used to identify the element in the DB
-   * @returns Promise<boolean> - True when an element with `elementName` exists
-   */
-  private async elementExistsInDB(
-    elementName: string
-  ): Promise<boolean> {
-
-    const existing =
-      await getElement(
-        elementName
-      );
-
-    return existing !== null;
-  }
 }
