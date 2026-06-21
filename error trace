@@ -1,16 +1,56 @@
-<button id="billingSubmitBtn" class="button-fancy-large" type="submit" name="dwfrm_billing_save" value="Continue" aria-label="Continue for billing"><span>Continue</span></button>
+Running 1 test using 1 worker
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
+…llSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User
+◇ injected env (17) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User › Navigate to PDP 
+
+    Test timeout of 300000ms exceeded.
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.product-tile:not(.slick-slide) .product-image a.thumb-link').first()
+    Expected: visible
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 300000ms
+      - waiting for locator('.product-tile:not(.slick-slide) .product-image a.thumb-link').first()
 
 
+       at utils\BrowserActionsImpl.ts:358
 
+      356 |
+      357 |   async waitForElement(locator: Locator): Promise<void> {
+    > 358 |     await expect(locator.first()).toBeVisible();
+          |                                   ^
+      359 |   }
+      360 |
+      361 |   async scrollIntoView(locator: Locator): Promise<void> {
+        at SRP.waitForElement (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\utils\BrowserActionsImpl.ts:358:35)
+        at SRP.navigateToRandomProduct (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\SRP.ts:91:20)
+        at CommonStepImpl.navigateToRandomProduct (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:61:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:383:27)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:36)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:25)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:382:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
 
-const cvv = this.locators.inpCardSecurityNumber(this.page);
-    await cvv.click();
-    await cvv.pressSequentially(securityCode, { delay: 50 });
-    await cvv.blur();
+    attachment #4: video (video/webm) ──────────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────
 
-    // Force focus fully out of the Aurus iframe so it tokenizes the card.
-    await this.page.locator('body').click({ position: { x: 5, y: 5 } });
-    await this.page.waitForTimeout(1500); // give Aurus time to produce the token
+    Error Context: test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\error-context.md
 
-    return this;
-}
+  Slow test file: [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts (5.4m)
+  Consider running tests from slow files in parallel. See: https://playwright.dev/docs/test-parallel
+  1 failed
+    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
+
+To open last HTML report run:
+
+  npx playwright show-report
+
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> 
