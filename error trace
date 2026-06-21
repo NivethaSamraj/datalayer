@@ -1,10 +1,22 @@
-  async enterCreditCardDetails(
+async enterCreditCardDetails(
     nameOnCard: string,
     cardNumber: string,
     expirationMonth: string,
     expirationYear: string,
     securityCode: string
 ): Promise<this> {
+
+    // Registered users default to the saved "Talbots credit card".
+    // Explicitly select the manual "Credit Card" radio so the Aurus
+    // iframe (#frame_carddetails) renders before we try to fill it.
+    const ccRadio = this.locators.radCreditCard(this.page); // #is-CREDIT_CARD
+    await ccRadio.waitFor({ state: 'visible', timeout: 30000 });
+    await ccRadio.click({ force: true });
+
+    // Wait for the Aurus card iframe to attach after selecting the radio.
+    await this.page
+        .locator('#frame_carddetails')
+        .waitFor({ state: 'attached', timeout: 30000 });
 
     const name = this.locators.inpNameOnCard(this.page);
     await name.waitFor({ state: 'visible', timeout: 30000 });
