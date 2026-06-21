@@ -1,308 +1,68 @@
-import { Page, Locator, expect } from '@playwright/test';
-import BrowserActionImpl from '../utils/BrowserActionsImpl';
-import { LocatorRegistry } from '../locators/registry/LocatorRegistry';
-import { pageNameConstants } from '../constants/pageNameConstants';
-import { LocatorFactory } from '../locators/registry/locatorTypes';
-import { checkoutBasePage } from '../locators/base/checkoutPageLocators';
-import { talbotsCheckoutPage } from '../locators/override/Talbots/checkoutPageLocators';
-import { ann_taylorCheckoutPage } from '../locators/override/Ann_Taylor/checkoutPageLocators';
+async enterCreditCardDetails(
+    nameOnCard: string,
+    cardNumber: string,
+    expirationMonth: string,
+    expirationYear: string,
+    securityCode: string
+): Promise<this> {
 
-export const checkoutPageLocators = {
+    // Registered users default to saved "Talbots credit card". Select the manual
+    // "Credit Card" radio and confirm the Aurus iframe renders; retry if needed.
+    const ccRadio = this.locators.radCreditCard(this.page);        // #is-CREDIT_CARD
+    const ccLabel = this.page.locator("label[for='is-CREDIT_CARD']");
+    const cardIframe = this.page.locator('#frame_carddetails');
 
-    ...checkoutBasePage,
+    for (let attempt = 0; attempt < 3; attempt++) {
+        await ccRadio.waitFor({ state: 'attached', timeout: 30000 });
 
-    ...talbotsCheckoutPage,
-
-    ...ann_taylorCheckoutPage
-};
-
-/**
- * Page Object Model for Checkout Page.
- */
-export class CheckoutPage extends BrowserActionImpl {
-    readonly page: Page;
-
-    private readonly locators:
-        typeof checkoutPageLocators;
-
-    constructor(page: Page) {
-        super();
-
-        this.page = page;
-
-        this.locators =
-            LocatorRegistry.getLocators(
-                pageNameConstants.CHECKOUTPAGE
-            ) as typeof checkoutPageLocators;
-
-        this.generateElementNamesForSelfHealing(this);
-    }
-
-    /**
-      * Clicks Checkout as Guest button.
-      */
-    async checkoutAsGuest(): Promise<void> {
-
-        await this.locators
-            .checkoutAsGuestButton(this.page)
-            .click();
-    }
-
-    /**
-     * Click Checkout As Guest label/button.
-     */
-    async clickCheckoutAsGuest(): Promise<this> {
-
-        await this.locators
-            .checkoutAsGuestButton(this.page)
-            .click();
-
-        return this;
-    }
-
-
-    async enterShippingAddressDetails(
-        firstName: string,
-        lastName: string,
-        email: string,
-        address1: string,
-        zipCode: string,
-        city: string,
-        state: string,
-        phoneNumber: string,
-        address2?: string
-    ): Promise<this> {
-        await this.type(
-            this.locators.inpFirstName(this.page),
-            firstName
-        );
-
-        await this.type(
-            this.locators.inpLastName(this.page),
-            lastName
-        );
-
-        await this.type(
-            this.locators.inpEmailForOrderConfirmation(this.page),
-            email
-        );
-
-        await this.type(
-            this.locators.inpAddress1(this.page),
-            address1
-        );
-
-        if (address2) {
-
-            await this.type(
-                this.locators.inpAddress2Optional(this.page),
-                address2
-            );
+        // Click the label (more reliable than the input for styled radios),
+        // fall back to the input itself.
+        if (await ccLabel.count() > 0) {
+            await ccLabel.click({ force: true });
+        } else {
+            await ccRadio.click({ force: true });
         }
 
-        await this.type(
-            this.locators.inpZIPCode(this.page),
-            zipCode
-        );
+        await this.page.waitForTimeout(1000);
 
-        await this.type(
-            this.locators.inpCity(this.page),
-            city
-        );
-        await this.selectDropdownByValue(
-            this.locators.drpState(this.page),
-            state
-        );
-
-        console.log(
-            'Selected state:',
-            await this.locators.drpState(this.page).inputValue()
-        );
-
-        const phoneField = this.locators.inpPhoneNumber(this.page);
-        await phoneField.waitFor({ state: 'visible', timeout: 30000 });
-        await this.type(phoneField, phoneNumber);
-
-        const enteredPhone = await phoneField.inputValue();
-        console.log('Entered phone:', enteredPhone);
-
-        return this;
-    }
-
-    async enterCreditCardDetails(
-        nameOnCard: string,
-        cardNumber: string,
-        expirationMonth: string,
-        expirationYear: string,
-        securityCode: string
-    ): Promise<this> {
-
-        // Registered users default to saved "Talbots credit card". Select the manual
-        // "Credit Card" radio and confirm the Aurus iframe renders; retry if needed.
-        const ccRadio = this.locators.radCreditCard(this.page);        // #is-CREDIT_CARD
-        const ccLabel = this.page.locator("label[for='is-CREDIT_CARD']");
-        const cardIframe = this.page.locator('#frame_carddetails');
-
-        for (let attempt = 0; attempt < 3; attempt++) {
-            await ccRadio.waitFor({ state: 'attached', timeout: 30000 });
-
-            // Click the label (more reliable than the input for styled radios),
-            // fall back to the input itself.
-            if (await ccLabel.count() > 0) {
-                await ccLabel.click({ force: true });
-            } else {
-                await ccRadio.click({ force: true });
+        try {
+            await cardIframe.waitFor({ state: 'attached', timeout: 8000 });
+            break; // iframe appeared, radio selection worked
+        } catch {
+            if (attempt === 2) {
+                throw new Error(
+                    'Credit Card radio did not reveal the card iframe after 3 attempts.'
+                );
             }
-
-            await this.page.waitForTimeout(1000);
-
-            try {
-                await cardIframe.waitFor({ state: 'attached', timeout: 8000 });
-                break; // iframe appeared, radio selection worked
-            } catch {
-                if (attempt === 2) {
-                    throw new Error(
-                        'Credit Card radio did not reveal the card iframe after 3 attempts.'
-                    );
-                }
-                // else loop and try selecting again
-            }
+            // else loop and try selecting again
         }
-
-        const name = this.locators.inpNameOnCard(this.page);
-        await name.waitFor({ state: 'visible', timeout: 30000 });
-        await name.click();
-        await name.pressSequentially(nameOnCard, { delay: 50 });
-
-        const num = this.locators.inpCardNumber(this.page);
-        await num.click();
-        await num.pressSequentially(cardNumber, { delay: 50 });
-
-        await this.selectDropdownByValue(
-            this.locators.drpCardExpirationMonth(this.page),
-            expirationMonth
-        );
-        await this.selectDropdownByValue(
-            this.locators.drpCardExpirationYear(this.page),
-            expirationYear
-        );
-
-        const cvv = this.locators.inpCardSecurityNumber(this.page);
-        await cvv.click();
-        await cvv.pressSequentially(securityCode, { delay: 50 });
-        await cvv.blur();
-
-        // Force focus fully out of the Aurus iframe so it tokenizes the card.
-        await this.page.locator('body').click({ position: { x: 5, y: 5 } });
-        await this.page.waitForTimeout(1500); // give Aurus time to produce the token
-
-        return this;
     }
 
+    const name = this.locators.inpNameOnCard(this.page);
+    await name.waitFor({ state: 'visible', timeout: 30000 });
+    await name.click();
+    await name.pressSequentially(nameOnCard, { delay: 50 });
 
-    /**
-     * enter value into PhoneNumber
-     */
-    async enterPhoneNumber(value: string): Promise<this> {
+    const num = this.locators.inpCardNumber(this.page);
+    await num.click();
+    await num.pressSequentially(cardNumber, { delay: 50 });
 
-        const phoneNumberField =
-            this.locators.inpPhoneNumber(this.page);
-        await phoneNumberField.waitFor({ state: 'visible', timeout: 30000 });
-        await this.type(
-            phoneNumberField,
-            value
-        );
+    await this.selectDropdownByValue(
+        this.locators.drpCardExpirationMonth(this.page),
+        expirationMonth
+    );
+    await this.selectDropdownByValue(
+        this.locators.drpCardExpirationYear(this.page),
+        expirationYear
+    );
 
-        const enteredPhone = await phoneNumberField.inputValue();
-        console.log('Entered phone (registered):', enteredPhone);
+    const cvv = this.locators.inpCardSecurityNumber(this.page);
+    await cvv.click();
+    await cvv.pressSequentially(securityCode, { delay: 50 });
+    await cvv.blur();
 
-        return this;
-    }
+    await this.page.locator('body').click({ position: { x: 5, y: 5 } });
+    await this.page.waitForTimeout(1500);
 
-    async clickContinueShipping(): Promise<this> {
-        const btn = this.page.locator('#form-submit:visible').first();
-        const billing = this.page
-            .locator('#payment-methods-area, form#dwfrm_billing, #is-CREDIT_CARD')
-            .first();
-
-        for (let attempt = 0; attempt < 3; attempt++) {
-            await btn.waitFor({ state: 'visible', timeout: 30000 });
-            await btn.scrollIntoViewIfNeeded();
-
-            await this.page.waitForTimeout(1000);
-            await btn.click();
-
-            try {
-                await billing.waitFor({ state: 'visible', timeout: 15000 });
-                return this; // advanced
-            } catch {
-                if (attempt === 2) {
-                    throw new Error(
-                        'Shipping did not advance to billing after 3 Continue clicks.'
-                    );
-                }
-            }
-        }
-        return this;
-    }
-
-    async clickPlaceOrder(): Promise<this> {
-
-        await this.locators.lblPlaceOrder(this.page).click();
-
-        return this;
-    }
-
-    async clickCreditCard(): Promise<this> {
-        await this.locators.radCreditCard(this.page).click({ force: true });
-
-        return this;
-    }
-
-    async enterSecurityCodeForRegisteredUser(
-        securityCode: string
-    ): Promise<this> {
-
-        const cvn =
-            this.locators.inptCardSecurityNumberRegUser(this.page);
-
-        await cvn.waitFor({
-            state: 'visible',
-            timeout: 30000
-        });
-
-        await cvn.click();
-
-        await cvn.pressSequentially(
-            securityCode,
-            { delay: 50 }
-        );
-
-        return this;
-    }
-
-    async clickContinueBilling(): Promise<this> {
-        const btn = this.locators.btnContinueBilling(this.page);
-        const placeOrder = this.locators.lblPlaceOrder(this.page);
-
-        for (let attempt = 0; attempt < 3; attempt++) {
-            await btn.waitFor({ state: 'visible', timeout: 30000 });
-            await this.scrollIntoView(btn);
-
-            await this.page.waitForTimeout(1000);
-            await btn.click({ force: true });
-
-            try {
-                await placeOrder.waitFor({ state: 'visible', timeout: 15000 });
-                return this; // advanced to Place Order step
-            } catch {
-                if (attempt === 2) {
-                    throw new Error(
-                        'Billing did not advance to Place Order after 3 Continue clicks.'
-                    );
-                }
-            }
-        }
-        return this;
-    }
+    return this;
 }
