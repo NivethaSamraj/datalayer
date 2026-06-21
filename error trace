@@ -1,3 +1,65 @@
-<button class="button-fancy-large checkout-button checkout-btn-toogle" type="submit" value="Checkout" name="dwfrm_cart_checkoutCart">
-Checkout
-</button>
+◇ injected env (0) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+
+Running 1 test using 1 worker
+◇ injected env (0) from .env // tip: ⌘ override existing { override: true }
+◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+…llSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User
+◇ injected env (17) from .env // tip: ⌘ multiple files { path: ['.env.local', '.env'] }
+  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User › Proceed to checkout as Registered User 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('button.checkout-button').first()
+    Expected: visible
+    Received: hidden
+    Timeout:  15000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 15000ms
+      - waiting for locator('button.checkout-button').first()
+        2 × locator resolved to <button type="submit" value="Checkout" disabled="disabled" name="dwfrm_cart_checkoutCart" class="button-fancy-large checkout-button checkout-btn-toogle">↵Checkout↵</button>
+          - unexpected value "hidden"
+        6 × locator resolved to <button type="submit" value="Checkout" name="dwfrm_cart_checkoutCart" class="button-fancy-large checkout-button checkout-btn-toogle">↵Checkout↵</button>
+          - unexpected value "hidden"
+        15 × locator resolved to <button role="link" tabindex="0" type="submit" value="Checkout" name="dwfrm_cart_checkoutCart" class="button-fancy-large checkout-button checkout-btn-toogle">↵Checkout↵</button>
+           - unexpected value "hidden"
+
+
+       at utils\BrowserActionsImpl.ts:358
+
+      356 |
+      357 |   async waitForElement(locator: Locator): Promise<void> {
+    > 358 |     await expect(locator.first()).toBeVisible({ timeout: 15000 });
+          |                                   ^
+      359 |   }
+      360 |
+      361 |   async scrollIntoView(locator: Locator): Promise<void> {
+        at CartPage.waitForElement (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\utils\BrowserActionsImpl.ts:358:35)
+        at CartPage.proceedToCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CartPage.ts:46:16)
+        at CommonStepImpl.proceedToCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:105:24)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:399:27)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:36)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:25)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:398:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+
+    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: video (video/webm) ──────────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\error-context.md
+
+  1 failed
+    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
+
+To open last HTML report run:
+
+  npx playwright show-report
+
+PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> 
