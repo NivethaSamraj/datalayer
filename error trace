@@ -1,4 +1,7 @@
-<input id="is-CREDIT_CARD" type="radio" class="input-radio " name="dwfrm_billing_paymentMethods_selectedPaymentMethodID" value="CREDIT_CARD" aria-required="true" role="radio">
-
-
-<input autocomplete="off" ondrop="return false;" onpaste="return false;" id="secCode" data-val="" type="tel" name="CVV" maxlength="3" placeholder="CVV" aurus-param="cvv" lang="en" aria-label="Enter security code" value="">
+async enterSecurityCodeForRegisteredUser(securityCode: string): Promise<this> {
+    const cvn = this.locators.inptCardSecurityNumberRegUser(this.page);
+    await cvn.waitFor({ state: 'visible', timeout: 30000 });
+    await cvn.click();
+    await cvn.pressSequentially(securityCode, { delay: 50 });
+    return this;
+}
