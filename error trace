@@ -1,1 +1,291 @@
-<input id="cName" class="" type="text" aurus-param="card_holder_name" value="" maxlength="50" autocomplete="off" ondrop="return false;" onpaste="return false;" lang="en" aria-label="Enter name on card" placeholder="">
+
+    attachment #12: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #13: DataLayer_Consolidated_Report.csv (text/csv) ───────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","PDPPage","PDP","adobe_category","Array","","[""apparel-50-off-dresses-dresses""]","FAIL","adobe_category expected value is not configured"
+    "2","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","[""1205"","...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #14: screenshot (image/png) ─────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: video (video/webm) ─────────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\error-context.md
+
+  2) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:24:5 › TC001 - Verify the Datalayer Validation for Guest User E2E script 
+
+    Error: DataLayer validation failed for HomePage. Please check DataLayer_Table_HomePage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:44:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:43:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+
+    Error: DataLayer validation failed for ProductListingPage. Please check DataLayer_Table_ProductListingPage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:53:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:50:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+
+    Error: DataLayer validation failed for PDPPage. Please check DataLayer_Table_PDPPage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:60:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+
+    Error: DataLayer validation failed for CartPage. Please check DataLayer_Table_CartPage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:74:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:69:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+
+    Error: DataLayer validation failed for CheckoutPage. Please check DataLayer_Table_CheckoutPage.html attachment.
+
+    expect(received).toBeTruthy()
+
+    Received: false
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:167:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at DataLayerStepImpl.validateCheckpoint (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\dataLayer\DataLayerStepImpl.ts:63:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:83:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+
+    Test timeout of 300000ms exceeded.
+
+    Error: locator.waitFor: Test ended.
+    Call log:
+      - waiting for locator('//button[@name=\'submit\' and @type=\'submit\' and normalize-space()=\'Place Order\']') to be visible
+
+
+       at page-objects\CheckoutPage.ts:250
+
+      248 |         // Confirm billing actually advanced to the Place Order step
+      249 |         await this.locators.lblPlaceOrder(this.page)
+    > 250 |             .waitFor({ state: 'visible', timeout: 30000 });
+          |              ^
+      251 |
+      252 |         return this;
+      253 |     }
+        at CheckoutPage.clickContinueBilling (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:250:14)
+        at CommonStepImpl.clickContinueButtonOnBillingCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:687:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:95:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:80:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+
+    attachment #2: DataLayer_Table_HomePage.html (text/html) ───────────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: DataLayer_Table_HomePage.csv (text/csv) ─────────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","HomePage","ALL_PAGES","segmentID","String","","88","FAIL","segmentID expected value is not configured"
+    "2","HomePage","ALL_PAGES","tealium_random","String","","3852117482087548","FAIL","tealium_random expected value is not...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #4: DataLayer_Table_ProductListingPage.html (text/html) ─────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #5: DataLayer_Table_ProductListingPage.csv (text/csv) ───────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","ProductListingPage","ALL_PAGES","mcmid","String","","13808153226708473183975644962273980201","FAIL","mcmid expected value is not configured"
+    "2","ProductListingPage","ALL_PAGES","segmentID","String","","88","FAIL","segment...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #6: DataLayer_Table_PDPPage.html (text/html) ────────────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #7: DataLayer_Table_PDPPage.csv (text/csv) ──────────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","PDPPage","ALL_PAGES","mcmid","String","","13808153226708473183975644962273980201","FAIL","mcmid expected value is not configured"
+    "2","PDPPage","ALL_PAGES","segmentID","String","","88","FAIL","segmentID expected value is n...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #8: DataLayer_Table_CartPage.html (text/html) ───────────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #9: DataLayer_Table_CartPage.csv (text/csv) ─────────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","","FAIL","cart_autoapply_item_promo_code has incorrect data type | Expected Type: Array | Actual Type: string | cart_autoapply_item_promo_code expected val...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #10: DataLayer_Table_CheckoutPage.html (text/html) ──────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #11: DataLayer_Table_CheckoutPage.csv (text/csv) ────────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","CheckoutPage","ALL_PAGES","mcmid","String","","13808153226708473183975644962273980201","FAIL","mcmid expected value is not configured"
+    "2","CheckoutPage","ALL_PAGES","segmentID","String","","88","FAIL","segmentID expected ...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #12: screenshot (image/png) ─────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium\test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #15: DataLayer_Consolidated_Report.html (text/html) ─────────────────────────────
+    
+            <html>
+            <head>
+                <style>
+                    body {
+                        font-family: Arial, sans-serif;
+                        padding: 10px;
+                        margin: 0;
+                        background: #ffffff;
+                    }
+    
+                    h2 {
+                        margin:...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #16: DataLayer_Consolidated_Report.csv (text/csv) ───────────────────────────────
+    No,Checkpoint,Group,Variable,VariableType,Expected,Actual,Status,Message
+    "1","CartPage","CART_PAGE","cart_autoapply_item_promo_code","Array","","","FAIL","cart_autoapply_item_promo_code has incorrect data type | Expected Type: Array | Actual Type: string | cart_autoapply_item_promo_code expected val...
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #17: video (video/webm) ─────────────────────────────────────────────────────────
+    test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium\video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium\error-context.md
+
+  2 failed
+    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:24:5 › TC001 - Verify the Datalayer Validation for Guest User E2E script 
+    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:123:5 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
+
+To open last HTML report run:
