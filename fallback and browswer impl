@@ -1,0 +1,1531 @@
+import { Page, Locator, test } from '@playwright/test';
+import { getElement } from '../db/elementRepo';
+import { getAILocator } from '../ai/aiHealing';
+import { saveHealingLog } from '../db/healingRepo';
+import { getMinimalFullDOM } from '../../utils/selfHealing';
+import { HealingLogger } from '../../utils/healingLogger';
+import { containsDynamicId } from '../../utils/selfHealing';
+import { allure } from 'allure-playwright';
+
+//  TYPE FIRST
+/**
+ * Result returned by the fallback healing engine when resolving an element.
+ */
+type FallbackResult = {
+  locator: Locator;
+  usedStrategy: string;
+};
+
+/**
+ * Attempts to resolve an element using a sequence of fallback strategies.
+ *
+ * The function will:
+ * - attempt the DB primary locator
+ * - try stored smart locators in priority order
+ * - request AI-assisted locators when heuristics fail
+ *
+ * It logs healing activity and persists healing logs when a resolution succeeds.
+ *
+ * @param page - Playwright `Page` instance used for validation and screenshots
+ * @param elementName - Logical name of the element as stored in the healing DB
+ * @param primaryLocator - Original locator attempted by the test
+ * @param testName - Optional test name for logging and reporting
+ * @returns Promise<FallbackResult> - Resolved `Locator` and the strategy used
+ */
+export async function findWithFallback(
+  page: Page,
+  elementName: string,
+  primaryLocator: Locator,
+  testName: string = 'default-test'
+): Promise<FallbackResult> {
+
+  const attempted: string[] = [];
+
+  // =========================================================
+  // START LOGGING
+  // =========================================================
+
+  HealingLogger.info('Test', testName);
+  HealingLogger.info('Element', elementName);
+  HealingLogger.info('Page', page.url());
+
+  HealingLogger.info('AI SELF-HEALING STARTED', 'Azure_OpenAI');
+
+  // =========================================================
+  // STEP 1 — FETCH ELEMENT FROM DB
+  // =========================================================
+
+  HealingLogger.subSection(
+    'STEP 1 — DATABASE PRIMARY LOCATOR'
+  );
+
+  const element = await getElement(elementName);
+
+  if (!element) {
+
+    HealingLogger.fail(
+      `No locator data found for ${elementName}`
+    );
+
+    throw new Error(
+      `No locator data found for ${elementName}`
+    );
+  }
+
+  const dbPrimaryLocatorStr = element.primary_locator;
+
+  if (dbPrimaryLocatorStr) {
+
+    HealingLogger.info(
+      'Trying',
+      dbPrimaryLocatorStr
+    );
+
+    const dbPrimary = buildLocator(
+      page,
+      dbPrimaryLocatorStr
+    );
+
+    if (
+      dbPrimary &&
+      await isValidLocator(dbPrimary)
+    ) {
+
+      HealingLogger.success(
+        `DB Primary locator worked`
+      );
+
+      await saveHealingLog({
+        elementName,
+        testName,
+        failedLocator: 'POM_PRIMARY',
+        attemptedLocators: attempted,
+        healedLocator: dbPrimaryLocatorStr,
+        strategy: 'db-primary',
+        status: 'HEALED',
+        errorMessage: null,
+      });
+
+      // Expose resolution to test report
+      await test.step('DB Primary locator resolved', async () => {
+        try {
+          allure.attachment(
+            'Locator Resolution',
+            JSON.stringify({ element: elementName, strategy: 'db-primary', locator: dbPrimaryLocatorStr }, null, 2),
+            'application/json'
+          );
+          const fullLog = HealingLogger.getAndClearLogs();
+          if (fullLog) {
+            allure.attachment('Healing Log', fullLog, 'text/plain');
+          }
+        } catch (e) {
+          // non-fatal
+        }
+      });
+
+      return {
+        locator: dbPrimary,
+        usedStrategy: 'db-primary',
+      };
+    }
+
+    attempted.push('db-primary');
+
+    HealingLogger.fail(
+      `DB Primary locator failed`
+    );
+  }
+
+  // =========================================================
+  // STEP 2 — SMART LOCATOR FALLBACK
+  // =========================================================
+
+  HealingLogger.subSection(
+    'STEP 2 — SMART LOCATOR FALLBACK'
+  );
+
+  const smartLocators =
+    typeof element.smart_locators === 'string'
+      ? JSON.parse(element.smart_locators)
+      : element.smart_locators;
+
+  const priority = [
+    'role',
+    'testId',
+    'label',
+    'placeholder',
+    'text',
+    'alt',
+    'title',
+    'css',
+    'xpath'
+  ];
+
+  for (const key of priority) {
+
+    const locatorStr = smartLocators?.[key];
+
+    if (!locatorStr) continue;
+
+    attempted.push(key);
+
+    HealingLogger.info(
+      'Strategy',
+      key
+    );
+
+    HealingLogger.info(
+      'Locator',
+      locatorStr
+    );
+
+    const built = buildLocator(
+      page,
+      locatorStr
+    );
+
+    if (!built) {
+
+      HealingLogger.fail(
+        'Failed to build locator'
+      );
+
+      continue;
+    }
+
+    const valid = await isValidLocator(built);
+
+    HealingLogger.info(
+      'Result',
+      valid ? 'SUCCESS' : 'FAILED'
+    );
+
+    if (valid) {
+
+      HealingLogger.success(
+        `Element healed using ${key}`
+      );
+
+      await saveHealingLog({
+        elementName,
+        testName,
+        failedLocator: primaryLocator,
+        attemptedLocators: attempted,
+        healedLocator: locatorStr,
+        strategy: key,
+        status: 'HEALED',
+        errorMessage: null,
+      });
+
+      // Report resolver success to test/Allure
+      await test.step(`Healed using smart locator: ${key}`, async () => {
+        try {
+          allure.attachment(
+            'Locator Resolution',
+            JSON.stringify({ element: elementName, strategy: key, locator: locatorStr }, null, 2),
+            'application/json'
+          );
+          const fullLog = HealingLogger.getAndClearLogs();
+          if (fullLog) {
+            allure.attachment('Healing Log', fullLog, 'text/plain');
+          }
+        } catch (e) {
+          // ignore
+        }
+      });
+
+      HealingLogger.section(
+        'HEALING COMPLETED'
+      );
+
+      return {
+        locator: built,
+        usedStrategy: key,
+      };
+    }
+  }
+
+  // =========================================================
+  // STEP 3 — AI HEALING
+  // =========================================================
+
+  HealingLogger.subSection(
+    'STEP 3 — AI HEALING'
+  );
+
+  HealingLogger.ai(
+    'Collecting screenshots and DOM context'
+  );
+
+  try {
+
+    // =========================================================
+    // CURRENT SCREENSHOT
+    // =========================================================
+
+    const screenshotBuffer =
+      await page.screenshot({
+        fullPage: true
+      });
+
+    const currentPageScreenshot =
+      screenshotBuffer.toString('base64');
+
+    // =========================================================
+    // OLD ELEMENT SCREENSHOT
+    // =========================================================
+
+    const oldElementScreenshot =
+      element?.element_screenshot
+        ? Buffer
+          .from(element.element_screenshot)
+          .toString('base64')
+        : null;
+
+    // =========================================================
+    // OLD FULL PAGE SCREENSHOT
+    // =========================================================
+
+    const oldPageScreenshot =
+      element?.full_page_screenshot
+        ? Buffer
+          .from(element.full_page_screenshot)
+          .toString('base64')
+        : null;
+
+    // =========================================================
+    // OLD OUTER HTML
+    // =========================================================
+
+    const oldOuterHTML =
+      element?.outer_html || '';
+
+    if (!oldOuterHTML) {
+
+      HealingLogger.warn(
+        'No stored outerHTML found'
+      );
+    }
+
+    HealingLogger.ai(
+      'Sending healing request to AI model'
+    );
+
+    // =========================================================
+    // AI CALL
+    // =========================================================
+
+    const aiResponse = await getAILocator({
+      elementName,
+      failedLocator: primaryLocator.toString(),
+      smartLocators,
+      oldOuterHTML: element.outer_html,
+      oldDOM: element.context_dom,
+      newDOM: await getMinimalFullDOM(page),
+      currentPageScreenshot,
+      oldPageScreenshot,
+      oldElementScreenshot,
+      meta: element?.meta || {},
+    });
+
+    // =========================================================
+    // VALIDATE AI RESPONSE
+    // =========================================================
+
+    if (
+      !aiResponse ||
+      !Array.isArray(aiResponse.candidates) ||
+      aiResponse.candidates.length === 0
+    ) {
+
+      throw new Error(
+        'AI returned no locator candidates'
+      );
+    }
+
+    // =========================================================
+    // SORT BY CONFIDENCE
+    // =========================================================
+
+    const candidates =
+      [...aiResponse.candidates]
+        .sort(
+          (a, b) =>
+            b.confidence - a.confidence
+        );
+
+    // =========================================================
+    // AI RESPONSE LOGGING
+    // =========================================================
+
+    HealingLogger.subSection(
+      'AI CANDIDATES'
+    );
+
+    candidates.forEach(
+      (candidate, index) => {
+
+        HealingLogger.ai(
+          `Candidate #${index + 1}`
+        );
+
+        HealingLogger.ai(
+          `Locator    : ${candidate.locator}`
+        );
+
+        HealingLogger.ai(
+          `Confidence : ${candidate.confidence}`
+        );
+
+        HealingLogger.ai(
+          `Reason     : ${candidate.reason}`
+        );
+      }
+    );
+
+    // =========================================================
+    // VALIDATION LOOP
+    // =========================================================
+
+    let validatedLocator: Locator | null =
+      null;
+
+    let winningCandidate:
+      {
+        locator: string;
+        confidence: number;
+        reason: string;
+      } | null = null;
+
+    for (const candidate of candidates) {
+
+      HealingLogger.subSection(
+        'TRYING AI CANDIDATE'
+      );
+
+      HealingLogger.info(
+        'Locator',
+        candidate.locator
+      );
+
+      HealingLogger.info(
+        'Confidence',
+        candidate.confidence
+      );
+
+      if (!candidate.locator) {
+
+        HealingLogger.warn(
+          'Empty locator returned'
+        );
+
+        continue;
+      }
+
+      if (
+        candidate.confidence < 0.7
+      ) {
+
+        HealingLogger.warn(
+          `Low confidence locator (${candidate.confidence})`
+        );
+
+        continue;
+      }
+
+      if (
+        containsDynamicId(
+          candidate.locator
+        )
+      ) {
+
+        HealingLogger.warn(
+          'Dynamic locator detected'
+        );
+
+        continue;
+      }
+
+      const locator =
+        buildLocator(
+          page,
+          candidate.locator
+        );
+
+      if (!locator) {
+
+        HealingLogger.warn(
+          'Failed to build locator'
+        );
+
+        continue;
+      }
+
+      const isValid =
+        await isValidLocator(
+          locator
+        );
+
+      if (!isValid) {
+
+        HealingLogger.warn(
+          'Locator validation failed'
+        );
+
+        continue;
+      }
+
+      validatedLocator =
+        locator;
+
+      winningCandidate =
+        candidate;
+
+      HealingLogger.success(
+        'Locator validated successfully'
+      );
+
+      break;
+    }
+
+    // =========================================================
+    // HEALING SUCCESS
+    // =========================================================
+
+    if (
+      validatedLocator &&
+      winningCandidate
+    ) {
+
+      HealingLogger.subSection(
+        'HEALING SUCCESS'
+      );
+
+      HealingLogger.success(
+        'AI locator validated successfully'
+      );
+
+      HealingLogger.info(
+        'Final Locator',
+        winningCandidate.locator
+      );
+
+      HealingLogger.info(
+        'Confidence',
+        winningCandidate.confidence
+      );
+
+      HealingLogger.info(
+        'Reason',
+        winningCandidate.reason
+      );
+
+      await saveHealingLog({
+        elementName,
+        testName,
+        failedLocator:
+          primaryLocator.toString(),
+        attemptedLocators:
+          attempted,
+        healedLocator:
+          winningCandidate.locator,
+        strategy: 'AI',
+        status: 'AI_HEALED',
+        errorMessage: null,
+      });
+
+      // Attach AI healing result to test report
+      await test.step('AI Healing - chosen locator', async () => {
+        try {
+          allure.attachment(
+            'AI Healing - Winning Candidate',
+            JSON.stringify({ element: elementName, locator: winningCandidate.locator, confidence: winningCandidate.confidence, reason: winningCandidate.reason }, null, 2),
+            'application/json'
+          );
+          const fullLog = HealingLogger.getAndClearLogs();
+          if (fullLog) {
+            allure.attachment('Healing Log', fullLog, 'text/plain');
+          }
+        } catch (e) {
+          // ignore attachment errors
+        }
+      });
+
+      HealingLogger.section(
+        'HEALING COMPLETED'
+      );
+
+      return {
+        locator:
+          validatedLocator,
+        usedStrategy: 'AI',
+      };
+    }
+
+    // =========================================================
+    // ALL FAILED
+    // =========================================================
+
+    throw new Error(
+      'None of the AI candidate locators were valid'
+    );
+
+  } catch (error: any) {
+
+    HealingLogger.subSection(
+      'HEALING FAILED'
+    );
+
+    HealingLogger.fail(
+      error?.message || 'Unknown healing error'
+    );
+
+    await saveHealingLog({
+      elementName,
+      testName,
+      failedLocator: primaryLocator.toString(),
+      attemptedLocators: attempted,
+      healedLocator: null,
+      strategy: 'AI',
+      status: 'FAILED',
+      errorMessage: error?.message || 'Unknown error',
+    });
+
+    throw new Error(
+      `All locator strategies including AI failed for ${elementName}`
+    );
+  }
+}
+
+export function buildLocator(
+  page: Page,
+  locatorStr: string
+): Locator | null {
+
+  try {
+
+    locatorStr = locatorStr.trim();
+
+    // Remove page. prefix if AI returns it
+    locatorStr = locatorStr.replace(/^page\./, '');
+
+    // -----------------------------
+    // getByRole
+    // -----------------------------
+    if (locatorStr.startsWith('getByRole')) {
+
+      const role = locatorStr.match(
+        /getByRole\(\s*['"]([^'"]+)['"]/
+      )?.[1];
+
+      const name = locatorStr.match(
+        /name\s*:\s*['"]([^'"]+)['"]/
+      )?.[1];
+
+      if (role) {
+        return page.getByRole(
+          role as any,
+          name
+            ? {
+              name,
+              exact: true,
+            }
+            : {}
+        );
+      }
+    }
+
+    // -----------------------------
+    // getByTestId
+    // -----------------------------
+    if (locatorStr.startsWith('getByTestId')) {
+
+      const val = locatorStr.match(
+        /getByTestId\(\s*['"]([^'"]+)['"]/
+      )?.[1];
+
+      if (val) {
+        return page.getByTestId(val);
+      }
+    }
+
+    // -----------------------------
+    // getByText
+    // -----------------------------
+    if (locatorStr.startsWith('getByText')) {
+
+      const val = locatorStr.match(
+        /getByText\(\s*['"]([^'"]+)['"]/
+      )?.[1];
+
+      if (val) {
+        return page.getByText(
+          val,
+          { exact: true }
+        );
+      }
+    }
+
+    // -----------------------------
+    // getByPlaceholder
+    // -----------------------------
+    if (locatorStr.startsWith('getByPlaceholder')) {
+
+      const val = locatorStr.match(
+        /getByPlaceholder\(\s*['"]([^'"]+)['"]/
+      )?.[1];
+
+      if (val) {
+        return page.getByPlaceholder(
+          val,
+          { exact: true }
+        );
+      }
+    }
+
+    // -----------------------------
+    // getByLabel
+    // -----------------------------
+    if (locatorStr.startsWith('getByLabel')) {
+
+      const val = locatorStr.match(
+        /getByLabel\(\s*['"]([^'"]+)['"]/
+      )?.[1];
+
+      if (val) {
+        return page.getByLabel(
+          val,
+          { exact: true }
+        );
+      }
+    }
+
+    // -----------------------------
+    // getByAltText
+    // -----------------------------
+    if (locatorStr.startsWith('getByAltText')) {
+
+      const val = locatorStr.match(
+        /getByAltText\(\s*['"]([^'"]+)['"]/
+      )?.[1];
+
+      if (val) {
+        return page.getByAltText(
+          val,
+          { exact: true }
+        );
+      }
+    }
+
+    // -----------------------------
+    // getByTitle
+    // -----------------------------
+    if (locatorStr.startsWith('getByTitle')) {
+
+      const val = locatorStr.match(
+        /getByTitle\(\s*['"]([^'"]+)['"]/
+      )?.[1];
+
+      if (val) {
+        return page.getByTitle(
+          val,
+          { exact: true }
+        );
+      }
+    }
+
+    // -----------------------------
+    // page.locator(...) / locator(...)
+    // -----------------------------
+    if (locatorStr.startsWith('locator(')) {
+
+      const val = locatorStr.match(
+        /locator\(\s*['"`]([\s\S]*?)['"`]\s*\)/
+      )?.[1];
+
+      if (val) {
+        return page.locator(val);
+      }
+    }
+
+    // -----------------------------
+    // Raw XPath
+    // -----------------------------
+    if (
+      locatorStr.startsWith('//') ||
+      locatorStr.startsWith('(//') ||
+      locatorStr.startsWith('xpath=')
+    ) {
+      return page.locator(locatorStr);
+    }
+
+    // -----------------------------
+    // Raw CSS
+    // -----------------------------
+    return page.locator(locatorStr);
+
+  } catch (error) {
+
+    console.warn(
+      'Failed to build locator:',
+      locatorStr,
+      error
+    );
+
+    return null;
+  }
+}
+
+export async function isValidLocator(
+  locator: Locator
+): Promise<boolean> {
+
+  try {
+
+    const count =
+      await locator.count();
+
+    if (count === 0) {
+
+      HealingLogger.warn(
+        'Locator matched 0 elements'
+      );
+
+      return false;
+    }
+
+    if (count > 1) {
+
+      HealingLogger.warn(
+        `Locator matched ${count} elements`
+      );
+
+      return false;
+    }
+
+    const element =
+      locator.first();
+
+    await element.waitFor({
+      state: 'visible',
+      timeout: 3000,
+    });
+
+    const isVisible =
+      await element.isVisible();
+
+    if (!isVisible) {
+
+      HealingLogger.warn(
+        'Element not visible'
+      );
+
+      return false;
+    }
+
+    const isEnabled =
+      await element.isEnabled();
+
+    if (!isEnabled) {
+
+      HealingLogger.warn(
+        'Element not enabled'
+      );
+
+      return false;
+    }
+
+    return true;
+
+  } catch (error: any) {
+
+    HealingLogger.warn(
+      `Locator validation failed: ${error.message}`
+    );
+
+    return false;
+  }
+}
+function escapeRegex(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { Page, Locator, expect, test } from '@playwright/test';
+import { BrowserAction } from './BrowserAction';
+import { buildSmartLocatorBundle, captureFullPageScreenshot, getElementContextDOM, getElementOuterHTML, getMinimalFullDOM } from '../utils/selfHealing';
+import { captureElementScreenshot } from '../utils/selfHealing';
+import { getElement, saveElement } from '../core/db/elementRepo';
+import { allure } from 'allure-playwright';
+import { findWithFallback } from '../core/healing/fallbackEngine';
+
+/**
+ * Concrete implementation of the `BrowserAction` interface using Playwright.
+ *
+ * This class centralizes common browser interactions (click, type, select,
+ * screenshotting and fallback-based element resolution) and instruments
+ * element captures into the healing database when new elements are seen.
+ */
+export default class BrowserActionImpl implements BrowserAction {
+
+  private locatorMap = new WeakMap<Locator, string>();
+
+  protected generateElementNamesForSelfHealing(pageObject: any) {
+
+    const pageName = pageObject.constructor.name;
+
+    for (const key of Object.keys(pageObject)) {
+
+      const value = pageObject[key];
+
+      if (
+        value &&
+        typeof value === 'object' &&
+        typeof value.fill === 'function'
+      ) {
+
+        this.locatorMap.set(
+          value,
+          `${pageName}_${key}`
+        );
+      }
+    }
+  }
+
+
+  /**
+   * Get a registered, human-friendly element name for a locator when available.
+   *
+   * @param locator - Playwright `Locator` instance
+   * @returns string - Registered element name or 'Unknown_Element'
+   */
+  protected getElementName(locator: Locator): string {
+
+    return (
+      this.locatorMap.get(locator) ??
+      'Unknown_Element'
+    );
+  }
+
+  async click(
+    locator: Locator,
+    waitForPageRefresh: boolean = false
+  ): Promise<void> {
+
+    const page = locator.page();
+
+    const elementName =
+      this.getElementName(locator);
+
+    let finalLocator = locator;
+    let usedFallback = false;
+
+    try {
+
+      await locator.waitFor({
+        state: 'visible',
+        timeout: 5000
+      });
+
+      await locator.click();
+
+    } catch {
+
+      const result = await findWithFallback(
+        page,
+        elementName,
+        locator
+      );
+
+      finalLocator = result.locator;
+      usedFallback = true;
+
+      await finalLocator.click();
+    }
+
+    if (!usedFallback) {
+      await test.step('Capture & Persist Element', async () => {
+        const exists = await this.elementExistsInDB(elementName);
+
+        if (!exists) {
+          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
+
+          // Attach the generated smart locators to Allure for visibility
+          try {
+            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
+            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
+          } catch (err) {
+            // non-fatal
+          }
+        }
+      });
+    }
+
+    if (waitForPageRefresh) {
+
+      await this.waitForPageRefresh(
+        page,
+        elementName
+      );
+
+      await page.waitForLoadState(
+        'load'
+      );
+    }
+  }
+
+  async selectDropdownByVisibleText(
+    locator: Locator,
+    optionValue: string,
+    waitForPageRefresh: boolean = false
+  ): Promise<void> {
+
+    const page = locator.page();
+
+    const elementName =
+      this.getElementName(locator);
+
+    let finalLocator = locator;
+    let usedFallback = false;
+
+    try {
+
+      await locator.waitFor({
+        state: 'visible',
+        timeout: 5000
+      });
+
+      await locator.selectOption({
+        label: optionValue
+      });
+
+      await locator.press('Tab');
+
+    } catch {
+
+      const result = await findWithFallback(
+        page,
+        elementName,
+        locator
+      );
+
+      finalLocator = result.locator;
+      usedFallback = true;
+
+      await finalLocator.selectOption({
+        label: optionValue
+      });
+
+      await finalLocator.press('Tab');
+    }
+
+    if (!usedFallback) {
+      await test.step('Capture & Persist Element', async () => {
+        const exists = await this.elementExistsInDB(elementName);
+
+        if (!exists) {
+          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
+
+          try {
+            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
+            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
+          } catch (err) {
+            // non-fatal
+          }
+        }
+      });
+    }
+
+    if (waitForPageRefresh) {
+
+      await this.waitForPageRefresh(
+        page,
+        elementName
+      );
+
+      await page.waitForLoadState(
+        'load'
+      );
+    }
+  }
+
+  async selectDropdownByIndex(
+    locator: Locator,
+    index: number,
+    waitForPageRefresh: boolean = false
+  ): Promise<void> {
+
+    const page = locator.page();
+
+    const elementName =
+      this.getElementName(locator);
+
+    let finalLocator = locator;
+    let usedFallback = false;
+
+    try {
+
+      await locator.waitFor({
+        state: 'visible',
+        timeout: 5000
+      });
+
+      await locator.selectOption({
+        index
+      });
+
+    } catch {
+
+      const result = await findWithFallback(
+        page,
+        elementName,
+        locator
+      );
+
+      finalLocator = result.locator;
+      usedFallback = true;
+
+      await finalLocator.waitFor({
+        state: 'visible'
+      });
+
+      await finalLocator.selectOption({
+        index
+      });
+    }
+
+    if (!usedFallback) {
+      await test.step('Capture & Persist Element', async () => {
+        const exists = await this.elementExistsInDB(elementName);
+
+        if (!exists) {
+          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
+
+          try {
+            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
+            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
+          } catch (err) {
+            // non-fatal
+          }
+        }
+      });
+    }
+
+    if (waitForPageRefresh) {
+
+      await this.waitForPageRefresh(
+        page,
+        elementName
+      );
+
+      await page.waitForLoadState(
+        'load'
+      );
+    }
+  }
+
+  async selectDropdownByRandomIndex(
+    locator: Locator
+  ): Promise<void> {
+
+    await this.selectDropdownByIndex(
+      locator,
+      -1
+    );
+  }
+
+  async selectDropdownByValue(
+    locator: Locator,
+    value: string,
+    waitForPageRefresh: boolean = false
+  ): Promise<void> {
+
+    const page = locator.page();
+
+    const elementName =
+      this.getElementName(locator);
+
+    let finalLocator = locator;
+    let usedFallback = false;
+
+    try {
+
+      await locator.waitFor({
+        state: 'visible',
+        timeout: 5000
+      });
+
+      await locator.selectOption(
+        value
+      );
+
+    } catch {
+
+      const result = await findWithFallback(
+        page,
+        elementName,
+        locator
+      );
+
+      finalLocator = result.locator;
+      usedFallback = true;
+
+      await finalLocator.selectOption(
+        value
+      );
+    }
+
+    if (!usedFallback) {
+      await test.step('Capture & Persist Element', async () => {
+        const exists = await this.elementExistsInDB(elementName);
+
+        if (!exists) {
+          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
+
+          try {
+            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
+            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
+          } catch (err) {
+            // non-fatal
+          }
+        }
+      });
+    }
+
+    if (waitForPageRefresh) {
+
+      await this.waitForPageRefresh(
+        page,
+        elementName
+      );
+
+      await page.waitForLoadState(
+        'load'
+      );
+    }
+  }
+
+
+
+  async waitForElement(locator: Locator): Promise<void> {
+    await expect(locator.first()).toBeVisible();
+  }
+
+  async scrollIntoView(locator: Locator): Promise<void> {
+    await locator.first().scrollIntoViewIfNeeded();
+  }
+  async type(
+    locator: Locator,
+    text: string,
+    waitForPageRefresh: boolean = false
+  ): Promise<void> {
+
+    const page = locator.page();
+
+    const elementName =
+      this.getElementName(locator);
+
+    let finalLocator = locator;
+    let usedFallback = false;
+
+    try {
+
+      await locator.fill('');
+      await locator.fill(text);
+
+    } catch (error) {
+
+      const result = await findWithFallback(
+        page,
+        elementName,
+        locator
+      );
+
+      finalLocator = result.locator;
+
+      usedFallback =
+        result.usedStrategy !== 'primary';
+
+      await finalLocator.fill('');
+      await finalLocator.fill(text);
+    }
+
+    if (!usedFallback) {
+      await test.step('Capture & Persist Element', async () => {
+        const exists = await this.elementExistsInDB(elementName);
+
+        if (!exists) {
+          await this.captureAndStore(finalLocator, elementName, finalLocator.toString());
+
+          try {
+            const bundle = await buildSmartLocatorBundle(finalLocator, elementName);
+            allure.attachment('Captured Smart Locators', JSON.stringify(bundle.smartLocators, null, 2), 'application/json');
+          } catch (err) {
+            // non-fatal
+          }
+        }
+      });
+    }
+
+    if (waitForPageRefresh) {
+
+      await finalLocator.press('Tab');
+
+      await this.waitForPageRefresh(
+        page,
+        elementName
+      );
+
+      await page.waitForLoadState(
+        'load'
+      );
+    }
+  }
+
+  async getText(locator: Locator): Promise<string> {
+    return await locator.first().innerText();
+  }
+
+  async confirmAlert(page: Page): Promise<void> {
+    page.once('dialog', async (dialog) => await dialog.accept());
+  }
+
+  async waitForDisappearance(locator: Locator): Promise<void> {
+    await expect(locator).toBeHidden();
+  }
+
+  async waitForPageRefresh(page: Page, elementDescription: string): Promise<void> {
+    await this.waitForDisappearance(page.locator("div[class*='disable-click']"));
+  }
+  async moveToElement(locator: Locator): Promise<void> {
+    await locator.hover();
+  }
+
+  async isEnabled(locator: Locator): Promise<boolean> {
+    return (await locator.isVisible()) && (await locator.isEnabled());
+  }
+
+  async isDisabled(locator: Locator): Promise<boolean> {
+    return await locator.isDisabled();
+  }
+
+  async verifyElementTextIsDisplayed(
+    locator: Locator,
+    expectedText: string
+  ): Promise<void> {
+
+    const actual = await locator.first().innerText();
+
+    if (actual !== expectedText) {
+      throw new Error(`Expected: ${expectedText}, Actual: ${actual}`);
+    }
+  }
+
+  async verifyPartialText(
+    locator: Locator,
+    expectedText: string
+  ): Promise<boolean> {
+    const actual = await locator.textContent();
+    return actual?.includes(expectedText) ?? false;
+  }
+
+  async getInputText(locator: Locator): Promise<string> {
+    return await locator.inputValue();
+  }
+
+  async verifyInputText(
+    locator: Locator,
+    expectedText: string
+  ): Promise<boolean> {
+    const actual = await locator.inputValue();
+    return actual.includes(expectedText);
+  }
+
+  async getAttribute(
+    locator: Locator,
+    attribute: string
+  ): Promise<string | null> {
+    return await locator.getAttribute(attribute);
+  }
+
+  async verifyAttribute(
+    locator: Locator,
+    attribute: string,
+    expectedText: string
+  ): Promise<boolean> {
+
+    const actual = await locator.getAttribute(attribute);
+
+    if (actual?.includes(expectedText)) return true;
+
+    throw new Error(`Expected attribute ${expectedText} not matching`);
+  }
+
+  async verifyNotDisplayed(locator: Locator): Promise<boolean> {
+    return !(await locator.isVisible());
+  }
+
+  async isElementDisplaying(locator: Locator): Promise<boolean> {
+    await locator.first().waitFor({ state: 'visible' });
+    return true;
+  }
+
+  async getListOfElements(locator: Locator): Promise<Locator[]> {
+    await locator.first().waitFor({ state: 'visible' });
+    return locator.all();
+  }
+
+  async confirmAlertWithText(
+    page: Page,
+    expectedAlertMessage: string
+  ): Promise<void> {
+
+    page.once('dialog', async (dialog) => {
+      if (dialog.message() === expectedAlertMessage) {
+        await dialog.accept();
+      } else {
+        throw new Error("Alert message mismatch");
+      }
+    });
+  }
+
+  async evaluate(page: Page, expression: any): Promise<void> {
+    await page.evaluate(expression);
+  }
+
+  async scrollToTopOfThePage(page: Page): Promise<void> {
+    await this.evaluate(page, () => window.scrollTo(0, 0));
+  }
+
+  async uploadFile(locator: Locator, value: string): Promise<void> {
+    await locator.setInputFiles(value);
+  }
+
+  async check(locator: Locator): Promise<boolean> {
+    await locator.check();
+    return true;
+  }
+
+  async pause(page: Page, type: string): Promise<void> {
+    const map: Record<string, number> = {
+      deepinferior: 500,
+      low: 1000,
+      medium: 2000,
+      high: 3000
+    };
+    await page.waitForTimeout(map[type.toLowerCase()] || 500);
+  }
+
+  async getListOfElementsSize(
+    locator: Locator,
+    timeout: number
+  ): Promise<number> {
+    try {
+      await locator.first().waitFor({ state: 'visible', timeout });
+      return await locator.count();
+    } catch {
+      return 0;
+    }
+  }
+
+  async clear(
+    locator: Locator,
+    elementDescription: string,
+    waitForPageRefresh: boolean = false
+  ): Promise<void> {
+
+    await locator.fill("");
+
+    if (waitForPageRefresh) {
+      await locator.press("Tab");
+      await this.waitForPageRefresh(locator.page(), elementDescription);
+      await locator.page().waitForLoadState('load');
+    }
+  }
+
+  async getLambdaTestLink(page: Page): Promise<string> {
+
+    if (process.env.RUN_ON_LAMBDA !== 'true') return '';
+
+    try {
+      const response = await page.evaluate(() =>
+        (globalThis as any).lt?.getTestDetails?.() ?? null
+      );
+
+      const parsed = typeof response === 'string' ? JSON.parse(response) : response;
+      return parsed?.data?.public_url || '';
+
+    } catch {
+      return '';
+    }
+  }
+
+  private async captureAndStore(
+    locator: Locator,
+    elementName: string,
+    primaryLocator: string
+  ) {
+    const page = locator.page();
+
+    const bundle = await buildSmartLocatorBundle(locator, elementName);
+
+    const [elementScreenshot, fullPageScreenshot] = await Promise.all([
+      captureElementScreenshot(locator),
+      captureFullPageScreenshot(page)
+    ]);
+
+    const outerHTML = await getElementOuterHTML(locator);
+    const context_dom = await getElementContextDOM(locator);
+
+    await saveElement({
+      elementName: bundle.elementName,
+      pageUrl: page.url(),
+      primaryLocator,
+      smartLocators: bundle.smartLocators,
+      meta: bundle.meta,
+      elementScreenshot,
+      fullPageScreenshot,
+      outerHTML,
+      context_dom,
+    });
+  }
+
+
+  /**
+   * Check whether an element record already exists in the persisted store.
+   *
+   * @param elementName - Name used to identify the element in the DB
+   * @returns Promise<boolean> - True when an element with `elementName` exists
+   */
+  private async elementExistsInDB(
+    elementName: string
+  ): Promise<boolean> {
+
+    const existing =
+      await getElement(
+        elementName
+      );
+
+    return existing !== null;
+  }
+}
