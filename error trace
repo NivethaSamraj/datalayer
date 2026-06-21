@@ -1,54 +1,68 @@
-PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> npx playwright test test_scripts/DataLayerE2E_FullSample
-◇ injected env (17) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
-◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+async enterCreditCardDetails(
+    nameOnCard: string,
+    cardNumber: string,
+    expirationMonth: string,
+    expirationYear: string,
+    securityCode: string
+): Promise<this> {
 
-Running 1 test using 1 worker
-◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-…llSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User
-◇ injected env (17) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-Entered phone (registered): 6175551234
-  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User › Proceed to checkout as Registered User 
+    // Registered users default to saved "Talbots credit card". Select the manual
+    // "Credit Card" radio and confirm the Aurus iframe renders; retry if needed.
+    const ccRadio = this.locators.radCreditCard(this.page);        // #is-CREDIT_CARD
+    const ccLabel = this.page.locator("label[for='is-CREDIT_CARD']");
+    const cardIframe = this.page.locator('#frame_carddetails');
 
-    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
-    Call log:
-      - waiting for locator('#frame_carddetails')
+    for (let attempt = 0; attempt < 3; attempt++) {
+        await ccRadio.waitFor({ state: 'attached', timeout: 30000 });
 
+        // Click the label (more reliable than the input for styled radios),
+        // fall back to the input itself.
+        if (await ccLabel.count() > 0) {
+            await ccLabel.click({ force: true });
+        } else {
+            await ccRadio.click({ force: true });
+        }
 
-       at page-objects\CheckoutPage.ts:152
+        await this.page.waitForTimeout(1000);
 
-      150 |     await this.page
-      151 |         .locator('#frame_carddetails')
-    > 152 |         .waitFor({ state: 'attached', timeout: 30000 });
-          |          ^
-      153 |
-      154 |     const name = this.locators.inpNameOnCard(this.page);
-      155 |     await name.waitFor({ state: 'visible', timeout: 30000 });
-        at CheckoutPage.enterCreditCardDetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:152:10)
-        at CommonStepImpl.enterCreditcarddetails (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:389:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:409:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:398:7)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
+        try {
+            await cardIframe.waitFor({ state: 'attached', timeout: 8000 });
+            break; // iframe appeared, radio selection worked
+        } catch {
+            if (attempt === 2) {
+                throw new Error(
+                    'Credit Card radio did not reveal the card iframe after 3 attempts.'
+                );
+            }
+            // else loop and try selecting again
+        }
+    }
 
-    attachment #4: screenshot (image/png) ──────────────────────────────────────────────────────
-    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\test-failed-1.png
-    ────────────────────────────────────────────────────────────────────────────────────────────
+    const name = this.locators.inpNameOnCard(this.page);
+    await name.waitFor({ state: 'visible', timeout: 30000 });
+    await name.click();
+    await name.pressSequentially(nameOnCard, { delay: 50 });
 
-    attachment #5: video (video/webm) ──────────────────────────────────────────────────────────
-    test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\video.webm
-    ────────────────────────────────────────────────────────────────────────────────────────────
+    const num = this.locators.inpCardNumber(this.page);
+    await num.click();
+    await num.pressSequentially(cardNumber, { delay: 50 });
 
-    Error Context: test-results\tests-test_scripts-DataLay-769e0--E2E-script-Registered-User-chromium\error-context.md
+    await this.selectDropdownByValue(
+        this.locators.drpCardExpirationMonth(this.page),
+        expirationMonth
+    );
+    await this.selectDropdownByValue(
+        this.locators.drpCardExpirationYear(this.page),
+        expirationYear
+    );
 
-  1 failed
-    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:345:6 › TC002 - Verify the Datalayer Validation for E2E script Registered User 
+    const cvv = this.locators.inpCardSecurityNumber(this.page);
+    await cvv.click();
+    await cvv.pressSequentially(securityCode, { delay: 50 });
+    await cvv.blur();
 
-To open last HTML report run:
+    await this.page.locator('body').click({ position: { x: 5, y: 5 } });
+    await this.page.waitForTimeout(1500);
 
-  npx playwright show-report
-
-PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> npx playwright show-report
+    return this;
+}
