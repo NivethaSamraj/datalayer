@@ -1,0 +1,77 @@
+
+async enterCreditCardDetails(
+    nameOnCard: string,
+    cardNumber: string,
+    expirationMonth: string,
+    expirationYear: string,
+    securityCode: string
+): Promise<this> {
+
+    // Select the manual "Credit Card" radio.
+    const ccLabel = this.page.locator("label[for='is-CREDIT_CARD']");
+    const ccRadio = this.locators.radCreditCard(this.page);
+    if (await ccLabel.count() > 0) {
+        await ccLabel.click({ force: true });
+    } else {
+        await ccRadio.click({ force: true });
+    }
+    await this.page.waitForTimeout(1500);
+
+    const cardIframe = this.page.locator('#frame_carddetails');
+    const iframeAppeared = await cardIframe
+        .waitFor({ state: 'attached', timeout: 8000 })
+        .then(() => true)
+        .catch(() => false);
+
+    if (iframeAppeared) {
+        // --- Blank card-entry iframe path ---
+        const name = this.locators.inpNameOnCard(this.page);
+        await name.waitFor({ state: 'visible', timeout: 30000 });
+        await name.click();
+        await name.pressSequentially(nameOnCard, { delay: 50 });
+
+        const num = this.locators.inpCardNumber(this.page);
+        await num.click();
+        await num.pressSequentially(cardNumber, { delay: 50 });
+
+        await this.selectDropdownByValue(this.locators.drpCardExpirationMonth(this.page), expirationMonth);
+        await this.selectDropdownByValue(this.locators.drpCardExpirationYear(this.page), expirationYear);
+
+        const cvv = this.locators.inpCardSecurityNumber(this.page);
+        await cvv.click();
+        await cvv.pressSequentially(securityCode, { delay: 50 });
+        await cvv.blur();
+
+        await this.page.locator('body').click({ position: { x: 5, y: 5 } });
+        await this.page.waitForTimeout(2500);
+    } else {
+        // --- Saved-card path: account has a stored card, only CVV needed ---
+        console.log('Saved card detected — entering CVV only.');
+        const cvn = this.locators.inptCardSecurityNumberRegUser(this.page);
+        await cvn.waitFor({ state: 'visible', timeout: 15000 });
+        await cvn.click();
+        await cvn.pressSequentially(securityCode, { delay: 50 });
+        await cvn.blur();
+        await this.page.waitForTimeout(1000);
+    }
+
+    return this;
+}
+
+
+
+
+
+placce order
+
+ async clickPlaceOrder(): Promise<this> {
+
+        await this.locators.lblPlaceOrder(this.page).click();
+
+        return this;
+    }
+
+
+
+
+
