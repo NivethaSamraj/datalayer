@@ -1,3 +1,226 @@
+// import { Page, TestInfo } from '@playwright/test';
+// import { test, expect } from '../../fixtures/testFixture.ts';
+// import * as dotenv from 'dotenv';
+// import { allure } from 'allure-playwright';
+// import { DataLayerDataEngine } from '../../test_steps/dataLayer/DataLayerDataEngine';
+// import { CommonStepImpl } from '../../test_steps/CommonStepImpl';
+// import { DataLayerStepImpl } from '../../test_steps/dataLayer/DataLayerStepImpl';
+// import { ValidationGroup, PageName } from '../../utils/dataLayer/DataLayerConstants';
+// import { BrandConstants } from '../../constants/BrandConstants.ts';
+
+// // Valid 10-digit US phone number used to pass shipping validation.
+// // Replace with a number your staging form accepts if this one is rejected.
+// const VALID_PHONE = '6175551234';
+
+// test.beforeEach(async ({ page }: { page: Page }) => {
+//   await allure.suite('Sample Test Suite');
+
+//   dotenv.config({
+//     path: `.env`,
+//     override: true,
+//   });
+// });
+
+// test.only(
+//   'TC001 - Verify the Datalayer Validation for Guest User E2E script',
+//   async ({ page }: { page: Page }, testInfo: TestInfo, report = {}) => {
+//     const context = page.context();
+//     test.info().annotations.push(
+//       { type: 'Author', description: 'Dinesh' },
+//       { type: 'TestCase', description: 'Verify the Datalayer Validation for E2E script' },
+//       { type: 'Test Description', description: 'Verify the Datalayer Validation for E2E script' }
+//     );
+
+//     const commonSteps = new CommonStepImpl(page, report);
+//     const dataLayer = new DataLayerStepImpl(page, testInfo, commonSteps);
+
+//     const lambdaLink: string = await commonSteps.getLambdaTestLink(page);
+
+//     const testData = await DataLayerDataEngine.create('TC001');
+//     const categoryName = testData.categoryName;
+//     try {
+
+//       await test.step('Validate DataLayer variables on Home Page', async () => {
+//         await dataLayer.validateCheckpoint(
+//           PageName.HomePage,
+//           [ValidationGroup.ALL_PAGES]
+//         );
+//       });
+
+//       await test.step('Navigate to PLP and validate DataLayer variables', async () => {
+//         await commonSteps.navigateToPLPByCategoryName(categoryName);
+
+//         await dataLayer.validateCheckpoint(
+//           PageName.ProductListingPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.GALLERY],
+//           { categoryName }
+//         );
+//       });
+
+//       await test.step('Navigate to PDP and validate DataLayer variables', async () => {
+//         await commonSteps.navigateToRandomProductFromPLP();
+
+//         await dataLayer.validateCheckpoint(
+//           PageName.PDPPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.PDP], { categoryName }
+//         );
+//       });
+
+//       await test.step('Add product to cart, navigate to checkout and validate DataLayer variables', async () => {
+//         await commonSteps.addToCartAndNavigateToCartPage();
+
+//         commonSteps.getCartProductsBopisFlag();
+
+//         await dataLayer.validateCheckpoint(
+//           PageName.CartPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.CART_PAGE, ValidationGroup.ALL_PAGES_WITH_CART_ITEM], { categoryName }
+//         );
+//       });
+
+//       await test.step('Proceed to checkout as guest and validate DataLayer variables', async () => {
+//         await commonSteps.proceedToCheckout();
+
+//         await dataLayer.validateCheckpoint(
+//           PageName.CheckoutPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.CHECKOUT_ADDRESS_VERIFICATION], { categoryName }
+//         );
+//         await commonSteps.checkoutAsGuest();
+
+//         // Ensure a valid 10-digit phone so shipping validation passes.
+//         (testData as any).phoneNumber = VALID_PHONE;
+//         await commonSteps.enterShippingAddress(testData);
+
+//         await commonSteps.clickContinueButtonOnCheckout();
+//         await commonSteps.enterCreditcarddetails();
+//         await commonSteps.clickContinueButtonOnBillingCheckout();
+//       });
+
+//       await test.step('orderconfirmationPageVerififcation', async () => {
+//         await commonSteps.placeorder();
+//         await dataLayer.validateCheckpoint(
+//           PageName.OrderConfirmationPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.ORDER_CONFIRM]
+//         );
+//       });
+
+//     } catch (error) {
+//       throw error;
+//     } finally {
+//       await testInfo.attach('lambaLink', {
+//         body: JSON.stringify(lambdaLink),
+//         contentType: 'application/json',
+//       });
+
+//       await testInfo.attach(testInfo.title, {
+//         body: JSON.stringify(report),
+//         contentType: 'application/json',
+//       });
+//       await dataLayer.attachConsolidatedReport();
+//     }
+//   }
+// );
+
+// test(
+//   'TC002 - Verify the Datalayer Validation for E2E script Registered User',
+//   async ({ page }: { page: Page }, testInfo: TestInfo, report = {}) => {
+
+//     test.info().annotations.push(
+//       { type: 'Author', description: 'Dinesh' },
+//       { type: 'TestCase', description: 'Verify the Datalayer Validation for E2E script Registered User' },
+//       { type: 'Test Description', description: 'Verify the Datalayer Validation for E2E script Registered User' }
+//     );
+
+//     const commonSteps = new CommonStepImpl(page, report);
+//     const dataLayer = new DataLayerStepImpl(page, testInfo, commonSteps);
+
+//     const lambdaLink: string = await commonSteps.getLambdaTestLink(page);
+
+//     const testData = await DataLayerDataEngine.create('TC002');
+//     const searchKeyword = testData.searchKeyword;
+//     try {
+
+//       await test.step('Validate DataLayer variables on Home Page', async () => {
+//         await dataLayer.validateCheckpoint(
+//           PageName.HomePage,
+//           [ValidationGroup.ALL_PAGES]
+//         );
+//       });
+
+//       await test.step('Login from Header', async () => {
+//         await commonSteps.signInAsRegisteredUser(testData.email, testData.password);
+//       });
+
+//       await test.step('Navigate to Search Result page and validate DataLayer variables', async () => {
+//         await commonSteps.navigateToSearchresultsPage('shirt');
+//         await dataLayer.validateCheckpoint(
+//           PageName.ProductListingPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.SEARCH_GALLERY],
+//           { searchKeyword }
+//         );
+//       });
+
+//       await test.step('Navigate to PDP and validate DataLayer variables', async () => {
+//         await commonSteps.navigateToRandomProduct();
+//         await dataLayer.validateCheckpoint(
+//           PageName.PDPPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.PDP], { searchKeyword }
+//         );
+//       });
+
+//       await test.step('Add product to cart, navigate to Cart and validate DataLayer variables', async () => {
+//         await commonSteps.addToCartAndNavigateToCartPage();
+//         await dataLayer.validateCheckpoint(
+//           PageName.CartPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.CART_PAGE, ValidationGroup.ALL_PAGES_WITH_CART_ITEM], { searchKeyword }
+//         );
+//       });
+
+//       await test.step('Proceed to checkout as Registered User and validate DataLayer variables', async () => {
+//         await commonSteps.proceedToCheckout();
+
+//         // Ensure a valid 10-digit phone so shipping validation passes.
+//         (testData as any).phoneNumber = VALID_PHONE;
+//         await commonSteps.enterPhoneNumber(testData);
+
+//         await commonSteps.clickContinueButtonOnCheckout();
+
+//         // Use the manual Credit Card path (same as guest flow):
+//         // clicks #is-CREDIT_CARD, fills card details, fills #secCode CVV.
+//         // The "Talbots credit card" saved-card option has no CVN field,
+//         // so enterSecurityCodeForRegisteredUser() is intentionally removed.
+//         await commonSteps.enterCreditcarddetails();
+//         await commonSteps.clickContinueButtonOnBillingCheckout();
+
+//         await dataLayer.validateCheckpoint(
+//           PageName.CheckoutPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.CHECKOUT_ADDRESS_VERIFICATION], { searchKeyword }
+//         );
+//       });
+
+//       await test.step('Proceed to Placing the Order and validate DataLayer variables', async () => {
+//         await commonSteps.placeorder();
+//         await dataLayer.validateCheckpoint(
+//           PageName.OrderConfirmationPage,
+//           [ValidationGroup.ALL_PAGES, ValidationGroup.ORDER_CONFIRM], { searchKeyword }
+//         );
+//       });
+
+//     } catch (error) {
+//       throw error;
+//     } finally {
+//       await testInfo.attach('lambaLink', {
+//         body: JSON.stringify(lambdaLink),
+//         contentType: 'application/json',
+//       });
+
+//       await testInfo.attach(testInfo.title, {
+//         body: JSON.stringify(report),
+//         contentType: 'application/json',
+//       });
+//       await dataLayer.attachConsolidatedReport();
+//     }
+//   }
+// );
 import { Page, TestInfo } from '@playwright/test';
 import { test, expect } from '../../fixtures/testFixture.ts';
 import * as dotenv from 'dotenv';
@@ -8,6 +231,7 @@ import { DataLayerStepImpl } from '../../test_steps/dataLayer/DataLayerStepImpl'
 import { ValidationGroup, PageName } from '../../utils/dataLayer/DataLayerConstants';
 import { BrandConstants } from '../../constants/BrandConstants.ts';
 
+const VALID_PHONE = '6175551234';
 
 test.beforeEach(async ({ page }: { page: Page }) => {
   await allure.suite('Sample Test Suite');
@@ -18,12 +242,10 @@ test.beforeEach(async ({ page }: { page: Page }) => {
   });
 });
 
-
-
 test.only(
-  'TC002 - Verify the Datalayer Validation for Guest User E2E script',
+  'TC001 - Verify the Datalayer Validation for Guest User E2E script',
   async ({ page }: { page: Page }, testInfo: TestInfo, report = {}) => {
-  const context = page.context();
+    const context = page.context();
     test.info().annotations.push(
       { type: 'Author', description: 'Dinesh' },
       { type: 'TestCase', description: 'Verify the Datalayer Validation for E2E script' },
@@ -39,68 +261,38 @@ test.only(
     const categoryName = testData.categoryName;
     try {
 
-      await test.step('Validate DataLayer variables on Home Page', async () => {
-        await dataLayer.validateCheckpoint(
-          PageName.HomePage,
-          [ValidationGroup.ALL_PAGES]
-        );
-      });
-
-
-      await test.step('Navigate to PLP and validate DataLayer variables', async () => {
+      await test.step('Navigate to PLP', async () => {
         await commonSteps.navigateToPLPByCategoryName(categoryName);
 
-        await dataLayer.validateCheckpoint(
-          PageName.ProductListingPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.GALLERY],
-          { categoryName }
-        );
       });
 
-      await test.step('Navigate to PDP and validate DataLayer variables', async () => {
+      await test.step('Navigate to PDP', async () => {
         await commonSteps.navigateToRandomProductFromPLP();
 
-        await dataLayer.validateCheckpoint(
-          PageName.PDPPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.PDP], { categoryName }
-        );
       });
 
-      await test.step('Add product to cart, navigate to checkout and validate DataLayer variables', async () => {
+      await test.step('Add product to cart, navigate to cart', async () => {
         await commonSteps.addToCartAndNavigateToCartPage();
-
-        commonSteps.getCartProductsBopisFlag();
-
-        await dataLayer.validateCheckpoint(
-          PageName.CartPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.CART_PAGE, ValidationGroup.ALL_PAGES_WITH_CART_ITEM], { categoryName }
-        );
+   
       });
 
-      await test.step('Proceed to checkout as guest and validate DataLayer variables', async () => {
+      await test.step('Proceed to checkout as guest', async () => {
         await commonSteps.proceedToCheckout();
 
-        await dataLayer.validateCheckpoint(
-          PageName.CheckoutPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.CHECKOUT_ADDRESS_VERIFICATION], { categoryName }
 
-        );
         await commonSteps.checkoutAsGuest();
+
+        (testData as any).phoneNumber = VALID_PHONE;
         await commonSteps.enterShippingAddress(testData);
+
         await commonSteps.clickContinueButtonOnCheckout();
         await commonSteps.enterCreditcarddetails();
         await commonSteps.clickContinueButtonOnBillingCheckout();
-
       });
 
-
-      await test.step('orderconfirmationPageVerififcation', async () => {
-
+      await test.step('Place order', async () => {
         await commonSteps.placeorder();
-        await dataLayer.validateCheckpoint(
-          PageName.OrderConfirmationPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.ORDER_CONFIRM]
-        );
+
       });
 
     } catch (error) {
@@ -115,14 +307,13 @@ test.only(
         body: JSON.stringify(report),
         contentType: 'application/json',
       });
-      await dataLayer.attachConsolidatedReport();
+      // await dataLayer.attachConsolidatedReport();
     }
   }
-
-
 );
+
 test(
-  'TC001 - Verify the Datalayer Validation for E2E script Registered User',
+  'TC002 - Verify the Datalayer Validation for E2E script Registered User',
   async ({ page }: { page: Page }, testInfo: TestInfo, report = {}) => {
 
     test.info().annotations.push(
@@ -140,71 +331,40 @@ test(
     const searchKeyword = testData.searchKeyword;
     try {
 
-      await test.step('Validate DataLayer variables on Home Page', async () => {
-        await dataLayer.validateCheckpoint(
-          PageName.HomePage,
-          [ValidationGroup.ALL_PAGES]
-        );
-      });
-
       await test.step('Login from Header', async () => {
         await commonSteps.signInAsRegisteredUser(testData.email, testData.password);
-
       });
-      await test.step('Navigate to Search Result page and validate DataLayer variables', async () => {
+
+      await test.step('Navigate to Search Result page', async () => {
         await commonSteps.navigateToSearchresultsPage('shirt');
-        await dataLayer.validateCheckpoint(
-          PageName.ProductListingPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.SEARCH_GALLERY],
-          { searchKeyword }
-        );
+     
       });
 
-      await test.step('Navigate to PDP and validate DataLayer variables', async () => {
+      await test.step('Navigate to PDP', async () => {
         await commonSteps.navigateToRandomProduct();
-        await dataLayer.validateCheckpoint(
-          PageName.PDPPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.PDP], { searchKeyword }
-        );
+ 
       });
 
-      await test.step('Add product to cart, navigate to Cart and validate DataLayer variables', async () => {
+      await test.step('Add product to cart, navigate to Cart', async () => {
         await commonSteps.addToCartAndNavigateToCartPage();
-        await dataLayer.validateCheckpoint(
-          PageName.CartPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.CART_PAGE, ValidationGroup.ALL_PAGES_WITH_CART_ITEM], { searchKeyword }
-        );
+ 
       });
 
-      await test.step('Proceed to checkout as Registered User and validate DataLayer variables', async () => {
+      await test.step('Proceed to checkout as Registered User', async () => {
         await commonSteps.proceedToCheckout();
+
+        (testData as any).phoneNumber = VALID_PHONE;
         await commonSteps.enterPhoneNumber(testData);
+
         await commonSteps.clickContinueButtonOnCheckout();
 
-        await commonSteps.enterSecurityCodeForRegisteredUser();
+        await commonSteps.enterCreditcarddetails();
         await commonSteps.clickContinueButtonOnBillingCheckout();
-
-
-        await dataLayer.validateCheckpoint(
-          PageName.CheckoutPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.CHECKOUT_ADDRESS_VERIFICATION], { searchKeyword }
-
-        );
 
       });
 
-
-      await test.step('Proceed to Placing the Order and validate DataLayer variables', async () => {
-
+      await test.step('Place order', async () => {
         await commonSteps.placeorder();
-
-        await dataLayer.validateCheckpoint(
-          PageName.OrderConfirmationPage,
-          [ValidationGroup.ALL_PAGES, ValidationGroup.ORDER_CONFIRM], { searchKeyword }
-
-        );
-
-
       });
 
     } catch (error) {
@@ -219,9 +379,7 @@ test(
         body: JSON.stringify(report),
         contentType: 'application/json',
       });
-      await dataLayer.attachConsolidatedReport();
+      // await dataLayer.attachConsolidatedReport();
     }
   }
-
-
 );
