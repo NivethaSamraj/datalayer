@@ -127,39 +127,55 @@ export class CheckoutPage extends BrowserActionImpl {
 
         return this;
     }
-   async enterCreditCardDetails(
-    nameOnCard: string,
-    cardNumber: string,
-    expirationMonth: string,
-    expirationYear: string,
-    securityCode: string
-): Promise<this> {
 
-    const name = this.locators.inpNameOnCard(this.page);
-    await name.waitFor({ state: 'visible', timeout: 30000 });
-    await name.click();
-    await name.pressSequentially(nameOnCard, { delay: 50 });
+    async enterCreditCardDetails(
+        nameOnCard: string,
+        cardNumber: string,
+        expirationMonth: string,
+        expirationYear: string,
+        securityCode: string
+    ): Promise<this> {
 
-    const num = this.locators.inpCardNumber(this.page);
-    await num.click();
-    await num.pressSequentially(cardNumber, { delay: 50 });
+        const name = this.locators.inpNameOnCard(this.page);
+        await name.waitFor({ state: 'visible', timeout: 30000 });
+        await name.click();
+        await name.pressSequentially(nameOnCard, { delay: 50 });
 
-    await this.selectDropdownByValue(
-        this.locators.drpCardExpirationMonth(this.page),
-        expirationMonth
-    );
-    await this.selectDropdownByValue(
-        this.locators.drpCardExpirationYear(this.page),
-        expirationYear
-    );
+        const num = this.locators.inpCardNumber(this.page);
+        await num.click();
+        await num.pressSequentially(cardNumber, { delay: 50 });
+        await num.blur();
 
-    const cvv = this.locators.inpCardSecurityNumber(this.page);
-    await cvv.click();
-    await cvv.pressSequentially(securityCode, { delay: 50 });
-    await cvv.blur();
+        await this.selectDropdownByValue(
+            this.locators.drpCardExpirationMonth(this.page),
+            expirationMonth
+        );
+        await this.selectDropdownByValue(
+            this.locators.drpCardExpirationYear(this.page),
+            expirationYear
+        );
 
-    return this;
-}
+        const cvv = this.locators.inpCardSecurityNumber(this.page);
+        await cvv.click();
+        await cvv.pressSequentially(securityCode, { delay: 50 });
+        await cvv.blur();
+
+        // Verify the card number actually committed. The Aurus payment field can
+        // remount after the shipping step settles and silently wipe earlier input,
+        // which later surfaces as a 30s hang at the Place Order wait.
+        const committed = (await num.inputValue().catch(() => '')).replace(/\s/g, '');
+        if (!committed || committed.length < 12) {
+            throw new Error(
+                `Card number did not commit (got "${committed}"). ` +
+                'The payment field likely remounted after shipping — ' +
+                're-enter card details after the payment area is stable, ' +
+                'or the field is inside an iframe and needs a frameLocator.'
+            );
+        }
+
+        return this;
+    }
+
     async enterPhoneNumber(value: string): Promise<this> {
 
         const phoneNumberField =
@@ -183,10 +199,45 @@ export class CheckoutPage extends BrowserActionImpl {
         await btn.waitFor({ state: 'visible', timeout: 30000 });
         await btn.scrollIntoViewIfNeeded();
         await btn.click();
-        await this.page
+
+        // Race the success target (payment section opening) against a visible
+        // validation error. This makes a rejected shipping form fail in ~2s with
+        // the actual reason instead of burning the full 30s on a hung waitFor.
+        const paymentArea = this.page
             .locator('#payment-methods-area, form#dwfrm_billing, #is-CREDIT_CARD')
-            .first()
-            .waitFor({ state: 'visible', timeout: 30000 });
+            .first();
+
+        const shippingError = this.page
+            .locator(
+                '.shipping-error .alert-danger, ' +
+                '#dwfrm_shipping .invalid-feedback:visible, ' +
+                '.error-message:visible'
+            )
+            .first();
+
+        const outcome = await Promise.race([
+            paymentArea
+                .waitFor({ state: 'visible', timeout: 30000 })
+                .then(() => 'payment' as const),
+            shippingError
+                .waitFor({ state: 'visible', timeout: 30000 })
+                .then(() => 'error' as const),
+        ]).catch(() => 'timeout' as const);
+
+        if (outcome === 'error') {
+            const msg = (await shippingError.textContent().catch(() => ''))?.trim();
+            throw new Error(
+                `Shipping step rejected — billing section did not open. Validation: "${msg}"`
+            );
+        }
+
+        if (outcome === 'timeout') {
+            throw new Error(
+                'Shipping Continue clicked but the payment section never appeared ' +
+                '(no visible validation error either). Likely the shipping-method ' +
+                'AJAX did not settle, or the Continue submit was a no-op.'
+            );
+        }
 
         return this;
     }
@@ -231,12 +282,53 @@ export class CheckoutPage extends BrowserActionImpl {
 
         await continueBilling.waitFor({ state: 'visible', timeout: 30000 });
         await this.scrollIntoView(continueBilling);
-        await this.page.keyboard.press('Tab');
-        await continueBilling.click({ force: true });
 
-        // Confirm billing actually advanced to the Place Order step
-        await this.locators.lblPlaceOrder(this.page)
-            .waitFor({ state: 'visible', timeout: 30000 });
+        // Commit any focused payment field by clicking a neutral spot, instead of
+        // a blind keyboard Tab to an unknown element. The previous Tab + force-click
+        // fired the submit regardless of form validity, producing a 30s hang when
+        // billing did not actually advance.
+        await this.page
+            .locator('body')
+            .click({ position: { x: 0, y: 0 } })
+            .catch(() => { /* non-fatal: only used to blur the active field */ });
+
+        await continueBilling.click();
+
+        // Race the Place Order step against a visible billing validation error so a
+        // rejected/declined payment fails fast with its reason rather than timing out.
+        const placeOrder = this.locators.lblPlaceOrder(this.page);
+
+        const billingError = this.page
+            .locator(
+                '#dwfrm_billing .invalid-feedback:visible, ' +
+                '.alert-danger:visible, ' +
+                '.error-message:visible'
+            )
+            .first();
+
+        const outcome = await Promise.race([
+            placeOrder
+                .waitFor({ state: 'visible', timeout: 30000 })
+                .then(() => 'placeorder' as const),
+            billingError
+                .waitFor({ state: 'visible', timeout: 30000 })
+                .then(() => 'error' as const),
+        ]).catch(() => 'timeout' as const);
+
+        if (outcome === 'error') {
+            const msg = (await billingError.textContent().catch(() => ''))?.trim();
+            throw new Error(
+                `Billing step rejected — Place Order never appeared. Validation: "${msg}"`
+            );
+        }
+
+        if (outcome === 'timeout') {
+            throw new Error(
+                'Billing Continue clicked but Place Order never appeared. ' +
+                'Check whether the Aurus payment iframe accepted the card ' +
+                '(test card 4111 1111 1111 1111 may be declined on this environment).'
+            );
+        }
 
         return this;
     }
