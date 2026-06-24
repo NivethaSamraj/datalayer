@@ -1,41 +1,38 @@
 aded --workers=1
-◇ injected env (19) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
-◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
+◇ injected env (19) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
 
 Running 1 test using 1 worker
 ◇ injected env (0) from .env // tip: ⌁ auth for agents [www.vestauth.com]
-◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
-…le.spec.ts:250:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script
+◇ injected env (0) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
+…le.spec.ts:245:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script
 ◇ injected env (19) from .env // tip: ⌘ suppress logs { quiet: true }
 Selected state: NC
 Entered phone: 6175551234
-◇ injected env (0) from .env // tip: ⌘ custom filepath { path: '/custom/path/.env' }
+◇ injected env (0) from .env // tip: ⌘ enable debugging { debug: true }
 ◇ injected env (0) from .env // tip: ⌘ suppress logs { quiet: true }
-◇ injected env (19) from .env // tip: ◈ encrypted .env [www.dotenvx.com]
+◇ injected env (19) from .env // tip: ◈ secrets for agents [www.dotenvx.com]
 Selected state: NC
 Entered phone: 6175551234
-  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:250:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script › Proceed to checkout as guest 
+  1) [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:245:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script › Proceed to checkout as guest 
 
-    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
-    Call log:
-      - waiting for locator('//button[@name=\'submit\' and @type=\'submit\' and normalize-space()=\'Place Order\']') to be visible
+    Error: Billing Continue clicked but Place Order never appeared. Check whether the Aurus payment iframe accepted the card (test card 4111 1111 1111 1111 may be declined on this environment).
 
+       at page-objects\CheckoutPage.ts:326
 
-       at page-objects\CheckoutPage.ts:252
-
-      250 |         // Confirm billing actually advanced to the Place Order step
-      251 |         await this.locators.lblPlaceOrder(this.page)
-    > 252 |             .waitFor({ state: 'visible', timeout: 30000 });
-          |              ^
-      253 |
-      254 |         return this;
-      255 |     }
-        at CheckoutPage.clickContinueBilling (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:252:14)
+      324 |
+      325 |         if (outcome === 'timeout') {
+    > 326 |             throw new Error(
+          |                   ^
+      327 |                 'Billing Continue clicked but Place Order never appeared. ' +
+      328 |                 'Check whether the Aurus payment iframe accepted the card ' +
+      329 |                 '(test card 4111 1111 1111 1111 may be declined on this environment).'
+        at CheckoutPage.clickContinueBilling (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:326:19)
         at CommonStepImpl.clickContinueButtonOnBillingCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:701:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:315:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:290:9)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:300:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:279:7)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
@@ -52,26 +49,23 @@ Entered phone: 6175551234
 
     Retry #1 ────────────────────────────────────────────────────────────────────────
 
-    TimeoutError: locator.waitFor: Timeout 30000ms exceeded.
-    Call log:
-      - waiting for locator('#payment-methods-area, form#dwfrm_billing, #is-CREDIT_CARD').first() to be visible
+    Error: Billing Continue clicked but Place Order never appeared. Check whether the Aurus payment iframe accepted the card (test card 4111 1111 1111 1111 may be declined on this environment).
 
+       at page-objects\CheckoutPage.ts:326
 
-       at page-objects\CheckoutPage.ts:202
-
-      200 |             .locator('#payment-methods-area, form#dwfrm_billing, #is-CREDIT_CARD')
-      201 |             .first()
-    > 202 |             .waitFor({ state: 'visible', timeout: 30000 });
-          |              ^
-      203 |
-      204 |         return this;
-      205 |     }
-        at CheckoutPage.clickContinueShipping (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:202:14)
-        at CommonStepImpl.clickContinueButtonOnCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:307:9)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:313:9)
+      324 |
+      325 |         if (outcome === 'timeout') {
+    > 326 |             throw new Error(
+          |                   ^
+      327 |                 'Billing Continue clicked but Place Order never appeared. ' +
+      328 |                 'Check whether the Aurus payment iframe accepted the card ' +
+      329 |                 '(test card 4111 1111 1111 1111 may be declined on this environment).'
+        at CheckoutPage.clickContinueBilling (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\page-objects\CheckoutPage.ts:326:19)
+        at CommonStepImpl.clickContinueButtonOnBillingCheckout (C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\test_steps\CommonStepImpl.ts:701:9)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:290:9)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2434:20)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\common\index.js:2432:19)
-        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:300:7)
+        at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\tests\test_scripts\DataLayerE2E_FullSample.spec.ts:279:7)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1662:9)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1154:11)
         at C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion\node_modules\playwright\lib\worker\workerProcessEntry.js:1660:7)
@@ -87,25 +81,10 @@ Entered phone: 6175551234
     Error Context: test-results\tests-test_scripts-DataLay-e55e9-n-for-Guest-User-E2E-script-chromium-retry1\error-context.md
 
   1 failed
-    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:250:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script 
+    [chromium] › tests\test_scripts\DataLayerE2E_FullSample.spec.ts:245:6 › TC001 - Verify the Datalayer Validation for Guest User E2E script 
 
 To open last HTML report run:
 
   npx playwright show-report
 
 PS C:\Users\nivetha.samraj\Downloads\Knitwell_DataLayerValidation 2 (1)\Knitwell_FinalVersion> 
-
-
-
-
-                                                                                     
-
-
-
-
-
-
-
-
-
-
